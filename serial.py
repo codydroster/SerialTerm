@@ -11,62 +11,117 @@ class MainWindow(Gtk.Window):
 	def __init__(self):
 		Gtk.Window.__init__(self, title="Serial Term")
 		self.set_default_size(800, 400)
-
-		self.serial_info_label = Gtk.Label("Info:")
-
-		self.serial_info = Gtk.Label()
+		
+		#sub windows
 		self.controller = ControllerWindow()
+
+		#serial settings window
 		self.serialWin = SerialWindow()
 		self.serialWin.connect("delete-event", self.serialWin.delete_event)
 		
-		mainbox = Gtk.Box(orientation='vertical')
-		portBox = Gtk.Box(orientation = 'horizontal', spacing = 6)
-	
-		appmenu = AppMenuBar()	
-		mainbox.add(appmenu)
-		openDevice = Gtk.Button(label = "Connect")
-		openDevice.connect('clicked', self.open_serial)
-			
-		serialLabel = Gtk.Label(" Serial Port:")
+		self.text2 = Gtk.Entry()  #remove eventually
+		self.text2.set_width_chars(40)
 
-		portBox.add(serialLabel)
+		#layout containers
+		self.mainbox = Gtk.Box(orientation='vertical', spacing = 6)
+		self.portBox = Gtk.Box(orientation = 'horizontal', spacing = 6)
+		self.portBox.set_margin_bottom(10)
+		self.ser_pb = SerialMainBox()
+		self.scrolled_term = ScrolledTerm()
+		self.scroll_box = Gtk.Box(orientation = 'vertical')
+		self.lastbox = Gtk.Box()
+		
+		#menubar
+		self.appmenu = AppMenuBar()	
+		self.mainbox.add(self.appmenu)
+
+		self.scroll_box.add(self.scrolled_term)
+		self.scroll_box.add(self.text2)
+		
+
+		#Paned Widget		
+		self.sep = Gtk.Paned(orientation = 'vertical')
+		#self.sep.pack1(self.scrolled_term, resize = True, shrink = True)
+		#self.sep.pack2(self.text2, resize = False, shrink = False)
+		self.sep.add1(self.scroll_box)
+		self.sep.add2(self.lastbox)
+		
+		#layout: add to main window		
+		self.add(self.mainbox)
+		self.mainbox.add(self.ser_pb)
+		self.mainbox.add(self.sep)
+		#self.mainbox.add(self.lastbox)
+
 		
 
 
-		self.serialPortCombo = Gtk.ComboBoxText()
 
+class SerialMainBox(Gtk.Box):
+	
+	def __init__(self):
+		Gtk.Box.__init__(self, spacing = 10)
+		
+		#initialize
+		self.serialPortCombo = Gtk.ComboBoxText()
+		self.serialLabel = Gtk.Label(" Serial Port:")
+		self.openDevice = Gtk.Button(label = "Connect")
 		self.edit = Gtk.Entry()
+		self.serial_info_label = Gtk.Label("Info:")
+		self.serial_info = Gtk.Label()
+
+		
+		#connect
+		self.openDevice.connect('clicked', self.open_serial)
+		self.serialPortCombo.connect('changed', self.dev_port_changed)
+		
+		
+		#combo box
 		self.edit.set_text('/dev/tty')
-		devEntry = self.edit.get_text()
+		self.devEntry = self.edit.get_text()
 		self.serialPortCombo.add(self.edit)
-		self.serialPortCombo.append('0', devEntry)
+		self.serialPortCombo.append('0', self.devEntry)
 		self.serialPortCombo.append('1', 'dev1')
 		self.serialPortCombo.append('2', 'dev2')
-		portBox.add(self.serialPortCombo)
-	
-		self.serialPortCombo.connect('changed', self.dev_port_changed)
-		portBox.add(openDevice)		
+		
+		
+		#add widgets in order
+		self.add(self.serialLabel)
+		self.add(self.serialPortCombo)
+		self.add(self.openDevice)		
+		self.add(self.serial_info_label)
+		self.add(self.serial_info)
 
-		portBox.add(self.serial_info_label)
-		portBox.add(self.serial_info)
-		self.add(mainbox)
-		mainbox.add(portBox)
+
 
 	def open_serial(self, widget):
-		
 		#print(self.serialPortCombo.get_active_text())
 		print(self.edit.get_text())
-		
+
 	def dev_port_changed(self, widget):
 		self.edit.set_text(self.serialPortCombo.get_active_text())
 
+class ScrolledTerm(Gtk.ScrolledWindow):
+	def __init__(self):
+		Gtk.ScrolledWindow.__init__(self)
 
+		self.frame = Gtk.Frame()
+		self.term_text = Gtk.TextView()
+		
+
+
+		self.set_size_request(100, 300)
+		self.set_margin_left(10)
+		self.set_margin_right(10)
+		self.set_margin_top(10)
+		self.set_margin_bottom(10)
+
+		self.add(self.term_text)
 
 class ControllerWindow(Gtk.Window):
 
 	def __init__(self):
 		Gtk.Window.__init__(self, title="Controller")
-		self.set_default_size(1200,600)
+		self.set_default_size(600,600)
 
 class SerialWindow(Gtk.Window):
 	def __init__(self):
@@ -120,7 +175,7 @@ class SerialWindow(Gtk.Window):
 		self.serial_info.append(self.row4.combo.get_active_text())
 
 		
-		main.serial_info.set_text(self.serial_info[0] + ', ' + self.serial_info[1] 
+		main.ser_pb.serial_info.set_text(self.serial_info[0] + ', ' + self.serial_info[1] 
 								+ '-' + self.serial_info[2][0] + '-' + self.serial_info[3])
 		self.hide_on_delete()
 		return True
@@ -131,16 +186,15 @@ class SerialWindowBox(Gtk.Box):
 	
 	def __init__(self):	
 		Gtk.Box.__init__(self, orientation='horizontal', spacing=10)
+		self.combo = Gtk.ComboBoxText()
+
 		self.label = Gtk.Label()
 		self.add(self.label)
 		self.label.set_width_chars(10)
 		self.label.xpad = 2
 	
-		self.combo = Gtk.ComboBoxText()
 
 		
-
-	
 		self.add(self.combo)
 	
 
@@ -159,34 +213,33 @@ class AppMenuBar(Gtk.MenuBar):
 	
 	def __init__(self):
 		Gtk.MenuBar.__init__(self)
-
-
 		
+		#initialize
 		filemenu = Gtk.Menu()
-
-		fileitem = Gtk.MenuItem("File")
-		fileitem.set_submenu(filemenu)
-		
-		exititem = Gtk.MenuItem("exit")
-		filemenu.add(exititem)
-		
-		exititem.connect("activate", Gtk.main_quit)
-
-
-		
 		viewmenu = Gtk.Menu()
 
+		fileitem = Gtk.MenuItem("File")
+		exititem = Gtk.MenuItem("exit")
 		viewitem = Gtk.MenuItem("View")
-		viewitem.set_submenu(viewmenu)
+		optionsItem = Gtk.MenuItem("Serial Port Options")
+		
 		controlleritem = Gtk.MenuItem("Controller")
 		
-		viewmenu.add(controlleritem)
+		exititem.connect("activate", Gtk.main_quit)
 		controlleritem.connect("activate", self.open_controller)
-
-		optionsItem = Gtk.MenuItem("Serial Port Options")
-		viewmenu.add(optionsItem)
 		optionsItem.connect("activate", self.open_serial)
 
+
+		fileitem.set_submenu(filemenu)
+		filemenu.add(exititem)
+		
+		
+		
+		
+		
+		viewmenu.add(controlleritem)
+		viewmenu.add(optionsItem)
+		viewitem.set_submenu(viewmenu)
 		self.add(fileitem)
 		self.add(viewitem)
 
