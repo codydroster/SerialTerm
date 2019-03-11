@@ -14,13 +14,15 @@ class MainWindow(Gtk.Window):
 
 	def __init__(self):
 		Gtk.Window.__init__(self, title="Serial Term")
-		self.set_default_size(800, 400)
+		self.set_default_size(800, 600)
 		self.var1 = 10	#test
 		
 		#menubar
 		self.appmenu = AppMenuBar()	
-		
-		
+		self.level1 = Gtk.LevelBar()
+		self.level1.set_min_value(0)
+		self.level1.set_max_value(10)
+		self.level1.set_value(3)
 		
 		
 
@@ -28,7 +30,6 @@ class MainWindow(Gtk.Window):
 		self.mainbox = Gtk.Box(orientation='vertical', spacing = 6)
 		self.serialportbox = SerialMainBox()
 		self.scrolled_term = ScrolledTerm()
-		self.lastbox = Gtk.Box()
 		
 		#serial settings window
 		self.appmenu.serialwin.connect("delete-event", self.delete_event)
@@ -36,40 +37,33 @@ class MainWindow(Gtk.Window):
 
 
 		
-
-
-
-
-
-		#Paned Widget		
-		self.sep = Gtk.Paned(orientation = 'vertical')
-		self.sep.pack1(self.scrolled_term, resize = True, shrink = False)
-		self.sep.add2(self.lastbox)
-
-		
 		#layout: add to main window	
 		self.mainbox.add(self.appmenu)	
 		self.add(self.mainbox)
 		self.mainbox.add(self.serialportbox)
-		self.mainbox.add(self.sep)
-
+		self.mainbox.add(self.scrolled_term)
+				
+		#self.mainbox.add(self.sep)
+		self.mainbox.add(self.level1)
+		
 		self.show_all()
 
 
 	def delete_event(self, window, event):
 		serialwin = self.appmenu.serialwin
 		serialinfo = self.serialportbox.serialinfo
+		serialinfolabel = self.serialportbox.serialinfolabel
 
-		self.serialportbox.serialinfo[0] = serialwin.row1.combo.get_active_text()
-		self.serialportbox.serialinfo[1] = serialwin.row2.combo.get_active_text()
-		self.serialportbox.serialinfo[2] = serialwin.row3.combo.get_active_text()
-		self.serialportbox.serialinfo[3] = serialwin.row4.combo.get_active_text()
+		serialinfo[0] = serialwin.row1.combo.get_active_text()
+		serialinfo[1] = serialwin.row2.combo.get_active_text()
+		serialinfo[2] = serialwin.row3.combo.get_active_text()
+		serialinfo[3] = serialwin.row4.combo.get_active_text()
 
 		
-		self.serialportbox.serialinfolabel.set_text(serialinfo[0] + ', '
-											+ serialinfo[1] 
-											+ '-' + serialinfo[2][0] + '-'
-											+ serialinfo[3])
+		serialinfolabel.set_text(serialinfo[0] + ', '
+					+ serialinfo[1] 
+					+ '-' + serialinfo[2][0] + '-'
+					+ serialinfo[3])
 		
 		self.appmenu.serialwin.hide_on_delete()
 		return True
@@ -77,11 +71,10 @@ class MainWindow(Gtk.Window):
 	
 	def open_serial(self, widget):
 		serialinfo = self.serialportbox.serialinfo
+		
 		port = self.serialportbox.useport
 		port.__init__()
-		port.port = self.serialportbox.serialPortCombo.get_active_text()
-		
-		
+		port.port = self.serialportbox.edit.get_text()
 		port.baudrate = int(serialinfo[0])
 		port.bytesize = int(serialinfo[1])
 		port.parity = serialinfo[2][0]
@@ -91,7 +84,7 @@ class MainWindow(Gtk.Window):
 
 		try: 
 			self.serialportbox.useport.open()
-			tbuf.insert_at_cursor('Opened Successfully' + '\n', -1)
+			tbuf.insert_at_cursor('Opened Successfully: ' + port.port + '\n', -1)
 			
 		except serial.SerialException as err:
 			tbuf.insert_at_cursor(format(err) + '\n', -1)
@@ -119,16 +112,15 @@ class SerialMainBox(Gtk.Box):
 		
 		self.serialinfo = ['9600', '8', 'None', '1']
 		self.serialinfolabel.set_text(self.serialinfo[0] + ', '
-											+ self.serialinfo[1] 
-											+ '-' + self.serialinfo[2][0] + '-'
-											+ self.serialinfo[3])
+						+ self.serialinfo[1] 
+						+ '-' + self.serialinfo[2][0] + '-'
+						+ self.serialinfo[3])
 
 		#serial initialize
 		self.availports = serial.tools.list_ports.comports()
 		self.useport = serial.Serial()
 	
 		#connect
-		
 		self.serialPortCombo.connect('changed', self.dev_port_changed)
 		self.scan.connect('clicked', self.pop_down)
 		
@@ -160,9 +152,6 @@ class SerialMainBox(Gtk.Box):
 	
 			
 
-
-#print(type(serial.PARITY_NONE))
-
 	def dev_port_changed(self, widget):
 		if  self.serialPortCombo.get_active_text() is not None:
 			self.edit.set_text(self.serialPortCombo.get_active_text())
@@ -177,7 +166,7 @@ class ScrolledTerm(Gtk.Box):
 
 		self.term_text = Gtk.TextView()
 		self.term_text.set_editable = True
-		self.term_text.set_size_request(100, 300)
+		self.term_text.set_size_request(100, 200)
 		self.text2 = Gtk.Entry()  #remove eventually
 
 		#textterm buffer
@@ -288,17 +277,17 @@ class AppMenuBar(Gtk.MenuBar):
 		viewmenu = Gtk.Menu()
 		self.controller = ControllerWindow()
 		self.serialwin = SerialWindow()
-
+		self.pygameins = None
 
 		fileitem = Gtk.MenuItem("File")
 		exititem = Gtk.MenuItem("exit")
 		viewitem = Gtk.MenuItem("View")
 		optionsItem = Gtk.MenuItem("Serial Port Options")
 		
-		controlleritem = Gtk.MenuItem("Controller")
+		self.controlleritem = Gtk.MenuItem("Controller")
 		
 		exititem.connect("activate", Gtk.main_quit)
-		controlleritem.connect("activate", self.open_controller)
+		self.controlleritem.connect("activate", self.open_controller)
 		optionsItem.connect("activate", self.open_serial)
 
 
@@ -306,15 +295,16 @@ class AppMenuBar(Gtk.MenuBar):
 		filemenu.add(exititem)
 		
 		
-		viewmenu.add(controlleritem)
+		viewmenu.add(self.controlleritem)
 		viewmenu.add(optionsItem)
 		viewitem.set_submenu(viewmenu)
 		self.add(fileitem)
 		self.add(viewitem)
 
 	def open_controller(self, widget):
-		
-		self.controller.show()
+		screen = pygame.display.set_mode((400, 400))
+		pygame.display.set_caption("Controller")
+		#self.controller.show()
 
 	def open_serial(self, widget):
 	

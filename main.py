@@ -2,21 +2,19 @@ import window
 import threading
 import time
 import serial
+import pygame
+import sys
 from gi.repository import Gtk, Gdk, GLib
 
 
 
 mainwin = window.MainWindow()
 
-def background():
-	i = 1
-	while True:
-		#print(i)
-		i = i + 1
-		time.sleep(1)
-		mainwin.var1 +=1
-		#print(mainwin.var1)
 
+
+
+def background():
+	None
 
 
 mainwin.connect("destroy", Gtk.main_quit)
@@ -36,4 +34,5 @@ Gdk.threads_init()
 Gdk.threads_enter()
 thread1.start()
 window.Gtk.main()
+pygame.quit()
 Gdk.threads_leave()
