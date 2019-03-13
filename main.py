@@ -18,8 +18,7 @@ def background():
 
 
 mainwin.connect("destroy", Gtk.main_quit)
-#main.connect("destroy", Gtk.main_quit)
-#main.show_all()
+
 
 thread1 = threading.Thread(target=background)
 thread1.daemon = True

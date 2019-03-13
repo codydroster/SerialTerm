@@ -15,7 +15,7 @@ class MainWindow(Gtk.Window):
 	def __init__(self):
 		Gtk.Window.__init__(self, title="Serial Term")
 		self.set_default_size(800, 600)
-		self.var1 = 10	#test
+
 		
 		#menubar
 		self.appmenu = AppMenuBar()	
@@ -167,7 +167,7 @@ class ScrolledTerm(Gtk.Box):
 		self.term_text = Gtk.TextView()
 		self.term_text.set_editable = True
 		self.term_text.set_size_request(100, 200)
-		self.text2 = Gtk.Entry()  #remove eventually
+		self.sendentry = Gtk.Entry()
 
 		#textterm buffer
 		#self.termbuffer = Gtk.TextBuffer()
@@ -175,10 +175,10 @@ class ScrolledTerm(Gtk.Box):
 		#self.termiter.set_line(10)
 			
 
-		self.text2.set_width_chars(40)
-		self.text2.set_margin_left(10)
-		self.text2.set_margin_right(10)
-		self.text2.set_margin_bottom(10)
+		self.sendentry.set_width_chars(40)
+		self.sendentry.set_margin_left(10)
+		self.sendentry.set_margin_right(10)
+		self.sendentry.set_margin_bottom(10)
 		#self.scrolled_window.set_size_request(100, 200)
 		self.scrolled_window.set_propagate_natural_height(True)
 		self.scrolled_window.set_margin_left(10)
@@ -189,7 +189,7 @@ class ScrolledTerm(Gtk.Box):
 		self.scrolled_window.add(self.term_text)
 
 		self.add(self.scrolled_window)
-		self.add(self.text2)
+		self.add(self.sendentry)
 
 class ControllerWindow(Gtk.Window):
 
