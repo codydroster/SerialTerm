@@ -2,6 +2,7 @@ import gi
 import serial
 import serial.tools.list_ports
 import time
+import pygame
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk, Gdk
 
@@ -17,11 +18,15 @@ class MainWindow(Gtk.Window):
 		self.set_default_size(800, 600)
 
 		
+		#joystick
+		self.joystickname = None
+		self.joysticklabel = Gtk.Label()
+
 		#menubar
 		self.appmenu = AppMenuBar()	
 		self.level1 = Gtk.LevelBar()
 		self.level1.set_min_value(0)
-		self.level1.set_max_value(10)
+		self.level1.set_max_value(200)
 		self.level1.set_value(3)
 		
 		
@@ -44,6 +49,7 @@ class MainWindow(Gtk.Window):
 		self.mainbox.add(self.scrolled_term)
 				
 		#self.mainbox.add(self.sep)
+		self.mainbox.add(self.joysticklabel)
 		self.mainbox.add(self.level1)
 		
 		self.show_all()
@@ -66,32 +72,60 @@ class MainWindow(Gtk.Window):
 					+ serialinfo[3])
 		
 		self.appmenu.serialwin.hide_on_delete()
+
+
+		joyid = self.appmenu.serialwin.controllerbox.contcombo.get_active()
+		joysticks = self.appmenu.serialwin.controllerbox.joysticks
+		
+		if joysticks is not None:
+			self.joystickname = joysticks[joyid].get_name()
+		self.joysticklabel.set_label(self.joystickname)
+
 		return True
 
 	
 	def open_serial(self, widget):
-		serialinfo = self.serialportbox.serialinfo
 		
-		port = self.serialportbox.useport
-		port.__init__()
-		port.port = self.serialportbox.edit.get_text()
-		port.baudrate = int(serialinfo[0])
-		port.bytesize = int(serialinfo[1])
-		port.parity = serialinfo[2][0]
-		port.stopbits = int(serialinfo[3])
-
 		tbuf = self.scrolled_term.term_text.get_buffer()
 
-		try: 
-			self.serialportbox.useport.open()
-			tbuf.insert_at_cursor('Opened Successfully: ' + port.port + '\n', -1)
-			
-		except serial.SerialException as err:
-			tbuf.insert_at_cursor(format(err) + '\n', -1)
-			#self.scrolled_term.termbuffer.insert_at_cursor(format(err), -1)
-			self.scrolled_term.term_text.set_buffer(tbuf)	
+		if self.serialportbox.opendevice.get_label() == "Connect":
+
+			serialinfo = self.serialportbox.serialinfo
+		
+			port = self.serialportbox.useport
+			port.__init__()
+			port.port = self.serialportbox.edit.get_text()
+			port.baudrate = int(serialinfo[0])
+			port.bytesize = int(serialinfo[1])
+			port.parity = serialinfo[2][0]
+			port.stopbits = int(serialinfo[3])
+
 			
 
+			try: 
+				self.serialportbox.useport.open()
+				tbuf.insert_at_cursor('Opened Successfully: ' + port.port + '\n', -1)
+				self.scrolled_term.term_text.set_buffer(tbuf)
+				self.serialportbox.opendevice.set_label("Close")
+				self.scrolled_term.term_text.scroll_to_iter(tbuf.get_end_iter(), 0, False, 0, 0)
+			
+			except serial.SerialException as err:
+				tbuf.insert_at_cursor(format(err) + '\n', -1)
+				#self.scrolled_term.termbuffer.insert_at_cursor(format(err), -1)
+				self.scrolled_term.term_text.set_buffer(tbuf)
+		
+		elif self.serialportbox.opendevice.get_label() == "Close":
+			
+			try:
+				self.serialportbox.useport.close()
+				tbuf.insert_at_cursor('Closed Successfully' + '\n')
+				self.scrolled_term.term_text.set_buffer(tbuf)
+				self.serialportbox.opendevice.set_label("Connect")
+				self.scrolled_term.term_text.scroll_to_iter(tbuf.get_end_iter(), 0, False, 0, 0)
+			
+			except serial.SerialException as err:
+				tbuf.insert_at_cursor(format(err) + '\n', -1)
+				self.scrolled_term.term_text.set_buffer(tbuf)
 
 
 class SerialMainBox(Gtk.Box):
@@ -163,10 +197,13 @@ class ScrolledTerm(Gtk.Box):
 		Gtk.Box.__init__(self, orientation = 'vertical')
 		
 		self.scrolled_window = Gtk.ScrolledWindow()
+		self.scrolled_window.set_max_content_height(300)
+	#	self.scrolled_window.set_overlay_scrolling(True)
 
 		self.term_text = Gtk.TextView()
 		self.term_text.set_editable = True
-		self.term_text.set_size_request(100, 200)
+		self.term_text.set_size_request(100, 300)
+
 		self.sendentry = Gtk.Entry()
 
 		#textterm buffer
@@ -200,13 +237,24 @@ class ControllerWindow(Gtk.Window):
 
 class SerialWindow(Gtk.Window):
 	def __init__(self):
-		Gtk.Window.__init__(self, title="Open Serial Port")
-		self.set_default_size(250,200)
+		Gtk.Window.__init__(self, title="Settings")
+		self.set_default_size(600,200)
+		mainbox = Gtk.Box(orientation = 'horizontal', spacing = 10)
+		#mainbox.set_size_request(500, 200)
 		serialbox = Gtk.Box(orientation = 'vertical', spacing = 10)
+		sep = Gtk.VSeparator()
+		self.controllerbox = ControllerBox()
+
+
+
+
+
+
+		conbutton = Gtk.Button(label = "connect")
 
 
 		self.row1 = SerialWindowBox()
-		self.row1.label.set_text("Baudrate: ")	
+		self.row1.label.set_text("Baudrate:")	
 		self.row1.combo.append('0', '9600')
 		self.row1.combo.append('1', "19200")
 		self.row1.combo.append('2', "115200")
@@ -214,7 +262,7 @@ class SerialWindow(Gtk.Window):
 		serialbox.add(self.row1)
 
 		self.row2 = SerialWindowBox()	
-		self.row2.label.set_text("Data Bits: ")
+		self.row2.label.set_text("Data Bits:")
 		self.row2.combo.append('0', '5')
 		self.row2.combo.append('1', '6')
 		self.row2.combo.append('2', '7')
@@ -223,7 +271,7 @@ class SerialWindow(Gtk.Window):
 		serialbox.add(self.row2)
 
 		self.row3 = SerialWindowBox()
-		self.row3.label.set_text("Parity:       ")
+		self.row3.label.set_text("Parity:     ")
 		self.row3.combo.append('0', 'None')
 		self.row3.combo.append('1', 'Odd')
 		self.row3.combo.append('2', 'Even')
@@ -231,14 +279,19 @@ class SerialWindow(Gtk.Window):
 		serialbox.add(self.row3)
 
 		self.row4 = SerialWindowBox()
-		self.row4.label.set_text("Stop Bits:  ")
+		self.row4.label.set_text("Stop Bits:")
 		self.row4.combo.append('0', '1')
 		self.row4.combo.append('1', '1.5')
 		self.row4.combo.append('2', '2')
 		self.row4.combo.set_active_id('0')
 		serialbox.add(self.row4)
 
-		self.add(serialbox)
+
+		mainbox.add(serialbox)
+		mainbox.add(sep)
+		mainbox.add(self.controllerbox)
+
+		self.add(mainbox)
 
 		
 
@@ -282,7 +335,7 @@ class AppMenuBar(Gtk.MenuBar):
 		fileitem = Gtk.MenuItem("File")
 		exititem = Gtk.MenuItem("exit")
 		viewitem = Gtk.MenuItem("View")
-		optionsItem = Gtk.MenuItem("Serial Port Options")
+		optionsItem = Gtk.MenuItem("Settings")
 		
 		self.controlleritem = Gtk.MenuItem("Controller")
 		
@@ -309,6 +362,80 @@ class AppMenuBar(Gtk.MenuBar):
 	def open_serial(self, widget):
 	
 		self.serialwin.show_all()
+
+
+
+
+class ControllerBox(Gtk.Box):
+
+	def __init__(self):
+		Gtk.Box.__init__(self, orientation = 'vertical')
+		pygame.joystick.init()		
+
+		self.joysticks = None
+
+		contbox = Gtk.Box(orientation = 'horizontal', spacing = 5)
+		contlabel = Gtk.Label("Controller: ")
+		self.contcombo = Gtk.ComboBoxText()
+		self.contcombo.set_size_request(500,10)
+
+		#self.contcombo.insert_text(0, '')
+		
+		secbox = Gtk.Box()
+		self.scanbut = Gtk.Button(label = "scan")
+		self.scanbut.set_margin_right(5)
+
+	
+
+
+		self.scanbut.connect("clicked", self.scan_cont)
+		contbox.add(contlabel)
+		contbox.add(self.contcombo)
+		contbox.add(self.scanbut)
+		self.add(contbox)
+		self.add(secbox)
+
+	def scan_cont(self, widget):
+		#pygame.joystick.quit()		
+		self.contcombo.remove_all()
+				
+		pygame.joystick.init()
+				
+		self.joysticks = [pygame.joystick.Joystick(x) for x in range(pygame.joystick.get_count())]
+
+		for j, joy in enumerate(self.joysticks):
+			self.contcombo.insert_text(j, joy.get_name())
+		
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
