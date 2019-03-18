@@ -3,6 +3,8 @@ import serial
 import serial.tools.list_ports
 import time
 import pygame
+
+import serialwindow
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk, Gdk
 
@@ -18,6 +20,8 @@ class MainWindow(Gtk.Window):
 		self.set_default_size(800, 600)
 
 		
+
+
 		#joystick
 		self.joystickname = None
 		self.joysticklabel = Gtk.Label()
@@ -38,6 +42,7 @@ class MainWindow(Gtk.Window):
 		
 		#serial settings window
 		self.appmenu.serialwin.connect("delete-event", self.delete_event)
+
 		self.serialportbox.opendevice.connect('clicked', self.open_serial)
 
 
@@ -49,6 +54,7 @@ class MainWindow(Gtk.Window):
 		self.mainbox.add(self.scrolled_term)
 				
 		#self.mainbox.add(self.sep)
+		
 		self.mainbox.add(self.joysticklabel)
 		self.mainbox.add(self.level1)
 		
@@ -77,10 +83,12 @@ class MainWindow(Gtk.Window):
 		joyid = self.appmenu.serialwin.controllerbox.contcombo.get_active()
 		joysticks = self.appmenu.serialwin.controllerbox.joysticks
 		
-		if joysticks is not None:
-			self.joystickname = joysticks[joyid].get_name()
-		self.joysticklabel.set_label(self.joystickname)
+		if serialwin.controllerbox.contcombo.get_active_text() != None:
 
+			self.joysticklabel.set_label(serialwin.controllerbox.contcombo.get_active_text())
+		else:
+			self.joysticklabel.set_label("")
+		
 		return True
 
 	
@@ -126,6 +134,8 @@ class MainWindow(Gtk.Window):
 			except serial.SerialException as err:
 				tbuf.insert_at_cursor(format(err) + '\n', -1)
 				self.scrolled_term.term_text.set_buffer(tbuf)
+
+
 
 
 class SerialMainBox(Gtk.Box):
@@ -198,25 +208,22 @@ class ScrolledTerm(Gtk.Box):
 		
 		self.scrolled_window = Gtk.ScrolledWindow()
 		self.scrolled_window.set_max_content_height(300)
-	#	self.scrolled_window.set_overlay_scrolling(True)
+
 
 		self.term_text = Gtk.TextView()
-		self.term_text.set_editable = True
+		self.term_text.set_cursor_visible(False)
 		self.term_text.set_size_request(100, 300)
 
 		self.sendentry = Gtk.Entry()
 
-		#textterm buffer
-		#self.termbuffer = Gtk.TextBuffer()
-		#self.termiter = Gtk.TextIter()
-		#self.termiter.set_line(10)
+
 			
 
 		self.sendentry.set_width_chars(40)
 		self.sendentry.set_margin_left(10)
 		self.sendentry.set_margin_right(10)
 		self.sendentry.set_margin_bottom(10)
-		#self.scrolled_window.set_size_request(100, 200)
+
 		self.scrolled_window.set_propagate_natural_height(True)
 		self.scrolled_window.set_margin_left(10)
 		self.scrolled_window.set_margin_right(10)
@@ -228,96 +235,11 @@ class ScrolledTerm(Gtk.Box):
 		self.add(self.scrolled_window)
 		self.add(self.sendentry)
 
-class ControllerWindow(Gtk.Window):
-
-	def __init__(self):
-		Gtk.Window.__init__(self, title="Controller")
-		self.set_default_size(600,600)
-
-
-class SerialWindow(Gtk.Window):
-	def __init__(self):
-		Gtk.Window.__init__(self, title="Settings")
-		self.set_default_size(600,200)
-		mainbox = Gtk.Box(orientation = 'horizontal', spacing = 10)
-		#mainbox.set_size_request(500, 200)
-		serialbox = Gtk.Box(orientation = 'vertical', spacing = 10)
-		sep = Gtk.VSeparator()
-		self.controllerbox = ControllerBox()
 
 
 
 
 
-
-		conbutton = Gtk.Button(label = "connect")
-
-
-		self.row1 = SerialWindowBox()
-		self.row1.label.set_text("Baudrate:")	
-		self.row1.combo.append('0', '9600')
-		self.row1.combo.append('1', "19200")
-		self.row1.combo.append('2', "115200")
-		self.row1.combo.set_active_id('0')
-		serialbox.add(self.row1)
-
-		self.row2 = SerialWindowBox()	
-		self.row2.label.set_text("Data Bits:")
-		self.row2.combo.append('0', '5')
-		self.row2.combo.append('1', '6')
-		self.row2.combo.append('2', '7')
-		self.row2.combo.append('3', '8')
-		self.row2.combo.set_active_id('3')
-		serialbox.add(self.row2)
-
-		self.row3 = SerialWindowBox()
-		self.row3.label.set_text("Parity:     ")
-		self.row3.combo.append('0', 'None')
-		self.row3.combo.append('1', 'Odd')
-		self.row3.combo.append('2', 'Even')
-		self.row3.combo.set_active_id('0')
-		serialbox.add(self.row3)
-
-		self.row4 = SerialWindowBox()
-		self.row4.label.set_text("Stop Bits:")
-		self.row4.combo.append('0', '1')
-		self.row4.combo.append('1', '1.5')
-		self.row4.combo.append('2', '2')
-		self.row4.combo.set_active_id('0')
-		serialbox.add(self.row4)
-
-
-		mainbox.add(serialbox)
-		mainbox.add(sep)
-		mainbox.add(self.controllerbox)
-
-		self.add(mainbox)
-
-		
-
-			
-class SerialWindowBox(Gtk.Box):
-	
-	def __init__(self):	
-		Gtk.Box.__init__(self, orientation='horizontal', spacing=10)
-		self.combo = Gtk.ComboBoxText()
-
-		self.label = Gtk.Label()
-		self.add(self.label)
-		self.label.set_width_chars(10)
-		self.label.xpad = 2
-	
-
-		self.add(self.combo)
-	
-
-
-
-
-class WindowBox(Gtk.Box):
-	
-	def __init__(self):
-		Gtk.Box.__init__(self, orientation='vertical', spacing=10)
 
 
 class AppMenuBar(Gtk.MenuBar):
@@ -328,8 +250,8 @@ class AppMenuBar(Gtk.MenuBar):
 		#initialize
 		filemenu = Gtk.Menu()
 		viewmenu = Gtk.Menu()
-		self.controller = ControllerWindow()
-		self.serialwin = SerialWindow()
+
+		self.serialwin = serialwindow.SerialWindow()
 		self.pygameins = None
 
 		fileitem = Gtk.MenuItem("File")
@@ -337,10 +259,10 @@ class AppMenuBar(Gtk.MenuBar):
 		viewitem = Gtk.MenuItem("View")
 		optionsItem = Gtk.MenuItem("Settings")
 		
-		self.controlleritem = Gtk.MenuItem("Controller")
+
 		
 		exititem.connect("activate", Gtk.main_quit)
-		self.controlleritem.connect("activate", self.open_controller)
+
 		optionsItem.connect("activate", self.open_serial)
 
 
@@ -348,16 +270,11 @@ class AppMenuBar(Gtk.MenuBar):
 		filemenu.add(exititem)
 		
 		
-		viewmenu.add(self.controlleritem)
+
 		viewmenu.add(optionsItem)
 		viewitem.set_submenu(viewmenu)
 		self.add(fileitem)
 		self.add(viewitem)
-
-	def open_controller(self, widget):
-		screen = pygame.display.set_mode((400, 400))
-		pygame.display.set_caption("Controller")
-		#self.controller.show()
 
 	def open_serial(self, widget):
 	
@@ -366,79 +283,6 @@ class AppMenuBar(Gtk.MenuBar):
 
 
 
-class ControllerBox(Gtk.Box):
 
-	def __init__(self):
-		Gtk.Box.__init__(self, orientation = 'vertical')
-		pygame.joystick.init()		
-
-		self.joysticks = None
-
-		contbox = Gtk.Box(orientation = 'horizontal', spacing = 5)
-		contlabel = Gtk.Label("Controller: ")
-		self.contcombo = Gtk.ComboBoxText()
-		self.contcombo.set_size_request(500,10)
-
-		#self.contcombo.insert_text(0, '')
-		
-		secbox = Gtk.Box()
-		self.scanbut = Gtk.Button(label = "scan")
-		self.scanbut.set_margin_right(5)
 
 	
-
-
-		self.scanbut.connect("clicked", self.scan_cont)
-		contbox.add(contlabel)
-		contbox.add(self.contcombo)
-		contbox.add(self.scanbut)
-		self.add(contbox)
-		self.add(secbox)
-
-	def scan_cont(self, widget):
-		#pygame.joystick.quit()		
-		self.contcombo.remove_all()
-				
-		pygame.joystick.init()
-				
-		self.joysticks = [pygame.joystick.Joystick(x) for x in range(pygame.joystick.get_count())]
-
-		for j, joy in enumerate(self.joysticks):
-			self.contcombo.insert_text(j, joy.get_name())
-		
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

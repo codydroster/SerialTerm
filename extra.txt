@@ -1,0 +1,28 @@
+		self.buttonlist0 = self.buttonlist
+				
+				for but in self.buttonlist0:
+					self.activebox.add(but)
+					but.show()
+
+
+
+		elif self.joystickinuse.get_id() == 1:
+			if self.buttonlist1 != self.buttonlist:
+				self.buttonlist1 = self.buttonlist
+
+				for but in self.buttonlist1:
+					self.activebox.add(but)
+					but.show()
+			
+
+
+		elif self.joystickinuse.get_id() == 2:
+			if self.buttonlist2 != self.buttonlist:
+				self.buttonlist2 = self.buttonlist
+
+				for but in self.buttonlist2:
+					self.activebox.add(but)
+					but.show()
+
+		if self.joystickinuse.get_id() == 0:
+			if self.buttonlist0 != self.buttonlist:
