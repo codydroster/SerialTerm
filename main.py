@@ -13,7 +13,10 @@ joystickid = mainwin.appmenu.serialwin.controllerbox.contcombo.get_active()
 
 def app_main():
 
+
+
 	mainwin.connect("destroy", Gtk.main_quit)
+
 	pygame.display.init()
 	GLib.threads_init()
 	Gdk.threads_init()
@@ -55,13 +58,8 @@ def background():
 	#main code
 		if joystickinuse.get_id() == joystickid:
 			
-			
-			#print(joystickinuse.get_axis(1))
-			returnval = joystickinuse.get_axis(1)
-			mainwin.level1.set_value(int(returnval*100)+2)
-			
-		#	mainwin.appmenu.serialwin.controllerbox.butbox.buttonlist[2][0].set_value = 1
-		#	print(joystickinuse.get_hat(0))
+			None
+
 
 
 
@@ -73,19 +71,38 @@ def background():
 			tbuf.insert_at_cursor('Connected: ' + joystickinuse.get_name() + '\n')
 			mainwin.scrolled_term.term_text.set_buffer(tbuf)
 			contbox.butbox.joystick = joystickinuse
-			time.sleep(1)
+
 
 
 		if mainwin.appmenu.serialwin.get_visible():
+			if joystickinuse.get_init():
+				buttonlist = contbox.butbox.buttonlist
+				axeslist = contbox.butbox.axeslist
+				hatlist = contbox.butbox.hatlist
 
-			buttonlist = contbox.butbox.buttonlist
-
-			for i, button in enumerate(buttonlist[joystickinuse.get_id()]):
-				value = int(joystickinuse.get_button(i))
-				button.levelbar.set_value((value + 1)*5)
-				#print(int(joystickinuse.get_button(i)))
-	
+				for i, button in enumerate(buttonlist[joystickinuse.get_id()]):
+					value = int(joystickinuse.get_button(i))
+					
+					button.levelbar.set_value((value * 95) + 4)
 			
+				for i, axis in enumerate(axeslist[joystickinuse.get_id()]):
+					value = joystickinuse.get_axis(i)
+
+					value = 50 + value * 45	
+					axis.levelbar.set_value(value)
+					
+
+				for i in range(joystickinuse.get_numhats()):
+					value = joystickinuse.get_hat(i)	#get hat i: joystick inuse
+
+					valuex = 50 + value[0] * 45
+
+
+					valuey = 50 + value[1] * 45
+
+					hatlist[joystickinuse.get_id()][i].levelbar.set_value(valuex)
+					hatlist[joystickinuse.get_id()][i+1].levelbar.set_value(valuey)
+					
 
 
 

@@ -77,6 +77,19 @@ class ControllerBox(Gtk.Box):
 		contbox.set_margin_bottom(20)
 		self.butbox = ButtonBox()
 		contlabel = Gtk.Label("Controller: ")
+
+		labelbox = Gtk.Box(orientation = 'horizontal')
+		buttonlabel = Gtk.Label("BUTTONS:")
+		buttonlabel.set_margin_right(103)
+		
+		sep = Gtk.Separator()
+
+		axeslabel = Gtk.Label("AXES:")
+		axeslabel.set_margin_right(110)
+	
+		hatlabel = Gtk.Label("HATS: ")
+		hatlabel.set_margin_right(118)
+
 		self.contcombo = Gtk.ComboBoxText()
 		self.contcombo.set_size_request(500,10)
 
@@ -96,6 +109,12 @@ class ControllerBox(Gtk.Box):
 
 
 		self.add(contbox)
+		labelbox.add(buttonlabel)
+		labelbox.add(hatlabel)
+		labelbox.add(axeslabel)
+
+		self.add(labelbox)
+		self.add(sep)
 		secbox.add(self.butbox)
 		secbox.add(self.rightbox)
 		self.add(secbox)
@@ -138,21 +157,24 @@ class SerialWindowBox(Gtk.Box):
 class ButtonBox(Gtk.Box):
 	
 	def __init__(self):
-		Gtk.Box.__init__(self, orientation = 'vertical', spacing = 5)
+		Gtk.Box.__init__(self, orientation = 'horizontal', spacing = 5)
 
-		self.activebox = Gtk.Box(orientation = 'vertical', spacing = 5)
+		
 		self.joystickid = None
 		buttonlabel = Gtk.Label("Buttons: ")
-		self.activebox2 = []
+		
+
+		self.buttonbox = []
+		self.hatbox = []
+		self.axesbox = []
+
+		self.buttonlist = []
+		self.hatlist = []
+		self.axeslist = []
 
 		self.joysticks = None
 
-		self.buttonlist = []
 
-		self.numbuttons = 0
-
-		self.add(buttonlabel)
-		self.button = Gtk.Label("test")
 
 
 	def updatebut(self):
@@ -162,45 +184,90 @@ class ButtonBox(Gtk.Box):
 
 		for j, joy in enumerate(self.joysticks):
 			joy.init()
+
+		#buttonlist
 			self.buttonlist.append([])
-			self.activebox2.insert(j, Gtk.Box(orientation = 'vertical'))
+			self.buttonbox.insert(j, Gtk.Box(orientation = 'vertical'))
 			for i in range(joy.get_numbuttons()):
 				self.buttonlist[j].insert(i, ButtonLevel(levlabel=str(i) + ':'))
-
-				self.activebox2[j].add(self.buttonlist[j][i])
+				self.buttonlist[j][i].label.set_margin_right(140)
+				self.buttonbox[j].add(self.buttonlist[j][i])
 	
-
+		#axislist
+			self.axeslist.append([])
+			self.axesbox.insert(j, Gtk.Box(orientation = 'vertical'))
+			for i in range(joy.get_numaxes()):
+				self.axeslist[j].insert(i, ButtonLevel(levlabel=str(i) + ':'))
+				self.axeslist[j][i].label.set_margin_right(130)
+				self.axesbox[j].add(self.axeslist[j][i])
 	
+		#hatlist
+			self.hatlist.append([])
+			self.hatbox.insert(j, Gtk.Box(orientation = 'vertical'))
+			for i in range(joy.get_numhats()+1):
+				self.hatlist[j].insert(i, ButtonLevel(levlabel=str(i) + ':'))
+				self.hatlist[j][i].label.set_margin_right(130)
+				self.hatbox[j].add(self.hatlist[j][i])
+
+
 
 	def map2(self):
 
 		self.show_all()
 		
-		for box in self.activebox2:
+	#buttonlist
+		for box in self.buttonbox:
 			if box in self.get_children():
 				self.remove(box)
 
 		for i in range(pygame.joystick.get_count()):
 			
 			if self.joystickid == i:
-				self.add(self.activebox2[i])
+				self.add(self.buttonbox[i])
 				self.show_all()
-				
+
+	
+	#hatlist
+		for box in self.hatbox:
+			if box in self.get_children():
+				self.remove(box)
+
+		for i in range(pygame.joystick.get_count()):
+			
+			if self.joystickid == i:
+				self.add(self.hatbox[i])
+				self.show_all()
+
+#axeslist
+		for box in self.axesbox:
+			if box in self.get_children():
+				self.remove(box)
+
+		for i in range(pygame.joystick.get_count()):
+			
+			if self.joystickid == i:
+				self.add(self.axesbox[i])
+				self.show_all()
+
+
 
 
 class ButtonLevel(Gtk.Box):
 	
 	def __init__(self, levlabel):
 		Gtk.Box.__init__(self, orientation = 'vertical')
-
+		self.set_size_request(150,0)
+		self.set_margin_bottom(10)
 		
 		self.levelbar = Gtk.LevelBar()
 		self.levelbar.set_min_value(0)
-		self.levelbar.set_max_value(10)
-		self.levelbar.set_value(30)	
+		self.levelbar.set_max_value(100)
+		self.levelbar.set_value(5)	
 
 
 		self.label = Gtk.Label()
+
+	#	self.label.set_margin_right(140)
 		self.label.set_label(levlabel)
 		
 		
