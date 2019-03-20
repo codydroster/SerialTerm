@@ -69,7 +69,7 @@ class ControllerBox(Gtk.Box):
 
 	def __init__(self):
 		Gtk.Box.__init__(self, orientation = 'vertical')
-		pygame.joystick.init()		
+		
 
 		self.joysticks = None
 
@@ -122,20 +122,22 @@ class ControllerBox(Gtk.Box):
 	def scan_cont(self, widget):
 		
 		self.contcombo.remove_all()
-		pygame.joystick.init()
+
 		self.joysticks = [pygame.joystick.Joystick(x) for x in range(pygame.joystick.get_count())]
 
 		for j, joy in enumerate(self.joysticks):
 			self.contcombo.insert_text(j, joy.get_name())
 		
+		
 		self.butbox.updatebut()
+
 
 
 	def map(self, widget):
 		self.butbox.joystickid = self.contcombo.get_active()
 
 		self.butbox.map2()
-		
+
 
 class SerialWindowBox(Gtk.Box):
 	
@@ -179,12 +181,19 @@ class ButtonBox(Gtk.Box):
 
 	def updatebut(self):
 		
-
 		self.joysticks = [pygame.joystick.Joystick(x) for x in range(pygame.joystick.get_count())]
 
-		for j, joy in enumerate(self.joysticks):
-			joy.init()
+		self.buttonlist = []
+		self.hatlist = []
+		self.axeslist = []
 
+
+		for j, joy in enumerate(self.joysticks):
+			
+			if not joy.get_init():
+				joy.init()
+
+		
 		#buttonlist
 			self.buttonlist.append([])
 			self.buttonbox.insert(j, Gtk.Box(orientation = 'vertical'))
@@ -267,7 +276,7 @@ class ButtonLevel(Gtk.Box):
 
 		self.label = Gtk.Label()
 
-	#	self.label.set_margin_right(140)
+
 		self.label.set_label(levlabel)
 		
 		

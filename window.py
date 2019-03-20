@@ -80,7 +80,7 @@ class MainWindow(Gtk.Window):
 		self.appmenu.serialwin.hide_on_delete()
 
 
-		joyid = self.appmenu.serialwin.controllerbox.contcombo.get_active()
+	#	joyid = self.appmenu.serialwin.controllerbox.contcombo.get_active()
 		joysticks = self.appmenu.serialwin.controllerbox.joysticks
 		
 		if serialwin.controllerbox.contcombo.get_active_text() != None:
@@ -112,7 +112,8 @@ class MainWindow(Gtk.Window):
 
 			try: 
 				self.serialportbox.useport.open()
-				tbuf.insert_at_cursor('Opened Successfully: ' + port.port + '\n', -1)
+			#	tbuf.insert_at_cursor('Opened Successfully: ' + port.port + '\n', -1)
+				tbuf.insert(tbuf.get_end_iter(),'Opened Successfully: ' + port.port + '\n', -1)	
 				self.scrolled_term.term_text.set_buffer(tbuf)
 				self.serialportbox.opendevice.set_label("Close")
 				self.scrolled_term.term_text.scroll_to_iter(tbuf.get_end_iter(), 0, False, 0, 0)
@@ -126,7 +127,7 @@ class MainWindow(Gtk.Window):
 			
 			try:
 				self.serialportbox.useport.close()
-				tbuf.insert_at_cursor('Closed Successfully' + '\n')
+				tbuf.insert(tbuf.get_end_iter(),'Closed Successfully' + '\n', -1)
 				self.scrolled_term.term_text.set_buffer(tbuf)
 				self.serialportbox.opendevice.set_label("Connect")
 				self.scrolled_term.term_text.scroll_to_iter(tbuf.get_end_iter(), 0, False, 0, 0)
@@ -212,6 +213,7 @@ class ScrolledTerm(Gtk.Box):
 
 		self.term_text = Gtk.TextView()
 		self.term_text.set_cursor_visible(False)
+		self.term_text.set_editable(False)
 		self.term_text.set_size_request(100, 300)
 
 		self.sendentry = Gtk.Entry()
@@ -252,7 +254,7 @@ class AppMenuBar(Gtk.MenuBar):
 		viewmenu = Gtk.Menu()
 
 		self.serialwin = serialwindow.SerialWindow()
-		self.pygameins = None
+
 
 		fileitem = Gtk.MenuItem("File")
 		exititem = Gtk.MenuItem("exit")
