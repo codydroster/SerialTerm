@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+
+
 import window
 import threading
 import time
@@ -8,7 +11,7 @@ from multiprocessing import Process, Manager
 from gi.repository import Gtk, Gdk, GLib
 
 mainwin = window.MainWindow()
-joystickid = mainwin.appmenu.serialwin.controllerbox.contcombo.get_active()
+joystickid = mainwin.appmenu.controllerwin.controllerbox.contcombo.get_active()
 
 
 def app_main():
@@ -22,7 +25,7 @@ def app_main():
 	Gdk.threads_init()
 	Gdk.threads_enter()
 	thread1.start()
-#	thread2.start()
+	thread2.start()
 	window.Gtk.main()
 	
 	Gdk.threads_leave();
@@ -32,24 +35,24 @@ def app_main():
 def background():
 	pygame.joystick.init()
 	tbuf = mainwin.scrolled_term.term_text.get_buffer()
-	contbox = mainwin.appmenu.serialwin.controllerbox
+	contbox = mainwin.appmenu.controllerwin.controllerbox
 
-	joystickid = mainwin.appmenu.serialwin.controllerbox.contcombo.get_active()
+	joystickid = mainwin.appmenu.controllerwin.controllerbox.contcombo.get_active()
 
 	while(joystickid is -1):
-		joystickid = mainwin.appmenu.serialwin.controllerbox.contcombo.get_active()
+		joystickid = mainwin.appmenu.controllerwin.controllerbox.contcombo.get_active()
 
 
 	joystickinuse = pygame.joystick.Joystick(joystickid)
 	joystickinuse.init()
 
 	#Window Terminal
-	tbuf.insert(tbuf.get_end_iter(),'Connected: ' + joystickinuse.get_name() + '\n', -1)
-	mainwin.scrolled_term.term_text.set_buffer(tbuf)
+
+	mainwin.scrolled_term.insert_text_term('Connected: ' + joystickinuse.get_name())
 	contbox.butbox.joystick = joystickinuse
 
 	while(True):
-		joystickid = mainwin.appmenu.serialwin.controllerbox.contcombo.get_active()
+		joystickid = mainwin.appmenu.controllerwin.controllerbox.contcombo.get_active()
 
 		joystickid
 
@@ -69,16 +72,12 @@ def background():
 		elif joystickid != -1:
 			
 			joystickinuse = pygame.joystick.Joystick(joystickid)
-
-		#	joystickinuse.init()
-
-			tbuf.insert(tbuf.get_end_iter(),'Connected: ' + joystickinuse.get_name() + '\n', -1)
-			mainwin.scrolled_term.term_text.set_buffer(tbuf)
+			mainwin.scrolled_term.insert_text_term('Connected: ' + joystickinuse.get_name())
 			contbox.butbox.joystick = joystickinuse
 
 
 
-		if mainwin.appmenu.serialwin.get_visible():
+		if mainwin.appmenu.controllerwin.get_visible():
 
 			if joystickid != -1:
 				
@@ -124,6 +123,9 @@ def serialbg():
 	while(True):
 		while(port.is_open):
 			print('hi')
+
+
+
 
 
 

@@ -4,6 +4,7 @@ import serial.tools.list_ports
 import time
 import pygame
 
+import controllerwindow
 import serialwindow
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk, Gdk
@@ -41,8 +42,8 @@ class MainWindow(Gtk.Window):
 		self.scrolled_term = ScrolledTerm()
 		
 		#serial settings window
-		self.appmenu.serialwin.connect("delete-event", self.delete_event)
-
+		self.appmenu.controllerwin.connect("delete-event", self.delete_controller)
+		self.appmenu.serialwin.connect("delete-event", self.delete_serial)
 		self.serialportbox.opendevice.connect('clicked', self.open_serial)
 
 
@@ -61,10 +62,12 @@ class MainWindow(Gtk.Window):
 		self.show_all()
 
 
-	def delete_event(self, window, event):
+	def delete_serial(self, window, event):
 		serialwin = self.appmenu.serialwin
 		serialinfo = self.serialportbox.serialinfo
 		serialinfolabel = self.serialportbox.serialinfolabel
+
+
 
 		serialinfo[0] = serialwin.row1.combo.get_active_text()
 		serialinfo[1] = serialwin.row2.combo.get_active_text()
@@ -77,18 +80,24 @@ class MainWindow(Gtk.Window):
 					+ '-' + serialinfo[2][0] + '-'
 					+ serialinfo[3])
 		
-		self.appmenu.serialwin.hide_on_delete()
+		serialwin.hide_on_delete()
+
+		return True
+
+	def delete_controller(self, window, event):
+		controllerwin = self.appmenu.controllerwin
 
 
-	#	joyid = self.appmenu.serialwin.controllerbox.contcombo.get_active()
-		joysticks = self.appmenu.serialwin.controllerbox.joysticks
+		joysticks = self.appmenu.controllerwin.controllerbox.joysticks
 		
-		if serialwin.controllerbox.contcombo.get_active_text() != None:
+		if controllerwin.controllerbox.contcombo.get_active_text() != None:
 
-			self.joysticklabel.set_label(serialwin.controllerbox.contcombo.get_active_text())
+			self.joysticklabel.set_label(controllerwin.controllerbox.contcombo.get_active_text())
 		else:
 			self.joysticklabel.set_label("")
 		
+
+		controllerwin.hide_on_delete()
 		return True
 
 	
@@ -111,30 +120,28 @@ class MainWindow(Gtk.Window):
 			
 
 			try: 
-				self.serialportbox.useport.open()
-			#	tbuf.insert_at_cursor('Opened Successfully: ' + port.port + '\n', -1)
-				tbuf.insert(tbuf.get_end_iter(),'Opened Successfully: ' + port.port + '\n', -1)	
-				self.scrolled_term.term_text.set_buffer(tbuf)
-				self.serialportbox.opendevice.set_label("Close")
+				self.serialportbox.useport.open()	
+				self.scrolled_term.insert_text_term('Opened Successfully: ' + port.port)
 				self.scrolled_term.term_text.scroll_to_iter(tbuf.get_end_iter(), 0, False, 0, 0)
-			
+				self.serialportbox.opendevice.set_label("Close")
+
 			except serial.SerialException as err:
-				tbuf.insert_at_cursor(format(err) + '\n', -1)
-				#self.scrolled_term.termbuffer.insert_at_cursor(format(err), -1)
-				self.scrolled_term.term_text.set_buffer(tbuf)
-		
+				self.scrolled_term.insert_text_term(format(err))
+
+
+
 		elif self.serialportbox.opendevice.get_label() == "Close":
 			
 			try:
 				self.serialportbox.useport.close()
-				tbuf.insert(tbuf.get_end_iter(),'Closed Successfully' + '\n', -1)
-				self.scrolled_term.term_text.set_buffer(tbuf)
+				self.scrolled_term.insert_text_term('Closed Successfully')
 				self.serialportbox.opendevice.set_label("Connect")
 				self.scrolled_term.term_text.scroll_to_iter(tbuf.get_end_iter(), 0, False, 0, 0)
 			
 			except serial.SerialException as err:
-				tbuf.insert_at_cursor(format(err) + '\n', -1)
-				self.scrolled_term.term_text.set_buffer(tbuf)
+
+				self.scrolled_term.insert_text_term(format(err))
+
 
 
 
@@ -233,13 +240,14 @@ class ScrolledTerm(Gtk.Box):
 		self.scrolled_window.set_margin_bottom(10)
 
 		self.scrolled_window.add(self.term_text)
-
 		self.add(self.scrolled_window)
 		self.add(self.sendentry)
 
 
-
-
+	def insert_text_term(self, text):
+		tbuf = self.term_text.get_buffer()
+		tbuf.insert(tbuf.get_end_iter(), text + '\n', -1)
+		self.term_text.set_buffer(tbuf)
 
 
 
@@ -253,37 +261,42 @@ class AppMenuBar(Gtk.MenuBar):
 		filemenu = Gtk.Menu()
 		viewmenu = Gtk.Menu()
 
+		self.controllerwin = controllerwindow.ControllerWindow()
+
 		self.serialwin = serialwindow.SerialWindow()
 
 
 		fileitem = Gtk.MenuItem("File")
 		exititem = Gtk.MenuItem("exit")
 		viewitem = Gtk.MenuItem("View")
-		optionsItem = Gtk.MenuItem("Settings")
+		optionsitem = Gtk.MenuItem("Controller")
+		serialitem = Gtk.MenuItem("Serial")
 		
 
 		
 		exititem.connect("activate", Gtk.main_quit)
 
-		optionsItem.connect("activate", self.open_serial)
-
+		optionsitem.connect("activate", self.open_cont)
+		serialitem.connect("activate", self.open_serial)
 
 		fileitem.set_submenu(filemenu)
 		filemenu.add(exititem)
 		
 		
 
-		viewmenu.add(optionsItem)
+		viewmenu.add(optionsitem)
+		viewmenu.add(serialitem)
 		viewitem.set_submenu(viewmenu)
 		self.add(fileitem)
 		self.add(viewitem)
 
-	def open_serial(self, widget):
+	def open_cont(self, widget):
 	
+		self.controllerwin.show_all()
+
+	def open_serial(self, widget):
+		
 		self.serialwin.show_all()
-
-
-
 
 
 
