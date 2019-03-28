@@ -21,7 +21,7 @@ class MainWindow(Gtk.Window):
 		self.set_default_size(800, 600)
 
 		
-
+		self.values = []
 
 		#joystick
 		self.joystickname = None
