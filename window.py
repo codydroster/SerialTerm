@@ -23,6 +23,7 @@ class MainWindow(Gtk.Window):
 		
 		self.values = []
 
+
 		#joystick
 		self.joystickname = None
 		self.joysticklabel = Gtk.Label()

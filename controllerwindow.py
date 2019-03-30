@@ -462,7 +462,7 @@ class ByteBox(Gtk.Box):
 		self.typeadd.connect('clicked', self.add_byte)
 		self.entryarray = []
 
-		self.transmitbytes = [0x42, 0x43, (0x3e8 >> 8), (0x3e8 & 0xff)]
+
 
 	#current joystick
 		self.joystickid = None
@@ -554,7 +554,8 @@ class ByteBox(Gtk.Box):
 			currentbyte.buttoncombo1.connect('changed', self.update)
 	
 			self.add(currentbyte)
-			
+
+		
 
 		if self.typebox.get_active() == 2:
 
@@ -581,8 +582,7 @@ class ByteBox(Gtk.Box):
 
 			self.add(currentbyte)
 		
-
-
+		
 
 		if self.typebox.get_active() == 4:
 
@@ -595,7 +595,7 @@ class ByteBox(Gtk.Box):
 
 			self.add(currentbyte)
 			
-
+		
 		self.map_axis()
 		self.map_button()
 		self.map_hat()
@@ -607,7 +607,7 @@ class ByteBox(Gtk.Box):
 			if widget is byte.byteentry:
 				try:
 					byte.byteval = int(byte.byteentry.get_text(), 0)
-					print(byte.byteval)
+
 				except:
 					byte.byteval = 0
 
@@ -627,7 +627,7 @@ class ByteBox(Gtk.Box):
 		for byte in self.entryarray:
 			if hasattr(byte, 'button0'):
 				if widget is byte.buttoncombo0:
-					if byte.buttomcombo0.get_active_text() == ' ':
+					if byte.buttoncombo0.get_active_text() == ' ':
 						byte.button0 = None
 					else:		
 						byte.button0 = byte.buttoncombo0.get_active()

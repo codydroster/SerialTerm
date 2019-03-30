@@ -13,7 +13,12 @@ from gi.repository import Gtk, Gdk, GLib, GObject
 
 mainwin = window.MainWindow()
 
+transmitbytes = bytearray()
+entryarray = mainwin.appmenu.controllerwin.controllerbox.bytebox.entryarray
 
+values = mainwin.values
+port = mainwin.serialportbox.useport
+bytes = []
 def app_main():
 
 
@@ -21,9 +26,9 @@ def app_main():
 	mainwin.connect("destroy", Gtk.main_quit)
 	pygame.display.init()
 
-	#Gdk.threads_init()
+	Gdk.threads_init()
 	GObject.threads_init()
-	#GLib.threads_init()
+#	GLib.threads_init()
 	Gdk.threads_enter()
 
 
@@ -31,7 +36,7 @@ def app_main():
 #	thread2.start()
 
 	GObject.idle_add(update_gui)
-	GObject.timeout_add(1, serialbg)
+	GObject.timeout_add(300, serialbg)
 
 	window.Gtk.main()
 	Gdk.threads_leave();
@@ -65,15 +70,24 @@ def background():
 
 
 		pygame.event.pump()
+		
+
+
+
 
 
 	#main code
+
 		if joystickinuse.get_id() == joystickid:
 			buttonattr = contbox.butbox.buttonattr			
 			axisattr = contbox.butbox.axisattr
 			hatattr = contbox.butbox.hatattr
 
-			values = mainwin.values
+
+		
+			
+
+
 			entryarray = mainwin.appmenu.controllerwin.controllerbox.bytebox.entryarray
 
 			for i, button in enumerate(buttonattr[joystickinuse.get_id()]):
@@ -99,12 +113,15 @@ def background():
 	#array to store values - not formatted into byte array
 			
 
+			
+
+
 			for i in range(len(entryarray)):
 				buttoncount = 0
 				axisval = 0
 				constval = 0
 
-				if len(values) < (i+1):
+				if len(values) < (i + 1):
 					values.append(0)
 					
 				if hasattr(entryarray[i], 'byteval'):
@@ -128,23 +145,59 @@ def background():
 						axisval = axisattr[joystickinuse.get_id()][entryarray[i].axis].value
 						
 	
-				values[i] =  buttoncount + axisval + constval
-						
-				print(int(values[i]))				
+				values[i] = int(buttoncount + axisval + constval)
+
+			transmitbytes = bytearray(values)
+	#		print('test')
 	
-#		for val in mainwin.values:
-#				print(val)
 
-
+	#	for i, byte in enumerate(values):
+		#		if entryarray[i].numbytes == 2:
+		#			transmitbytes[i] = 0
+		#			transmitbytes[i+1] = 0
+		#			i+=1
+		#		else:
+		#			transmitbytes[i] = 0
+			#	print(byte)
 
 			
+
+
+		#	count = 0
+
+		#	for cnt in entryarray:
+		#		count += cnt.numbytes
+
+		#	if len(transmitbytes) < count + 1:
+		#		transmitbytes.append(0)
+
+		#	if len(transmitbytes) < count + 1:
+		#		transmitbytes.append(0)
+
+
+		#	for i, bytes in enumerate(entryarray):
+		#		print(values[i])
+		#		if bytes.numbytes == 1:
+					
+		#			transmitbytes[i] = chr(values[i])
+		#			print('one byte')
+		#		elif bytes.numbytes == 2:
+					
+		#			transmitbytes[i] = chr(values[i] >> 8)
+		#			transmitbytes[i+1] = chr(values[i] & 0xff)
+		#			i+=1
+		#			print('2 bytes')
+				
+			
+
+
+
 
 		elif joystickid != -1:
-			
 			joystickinuse = pygame.joystick.Joystick(joystickid)
 			mainwin.scrolled_term.insert_text_term('Connected: ' + joystickinuse.get_name())
 			contbox.butbox.joystick = joystickinuse
-
+			
 
 					
 def update_gui():
@@ -155,7 +208,7 @@ def update_gui():
 		buttonattr = mainwin.appmenu.controllerwin.controllerbox.butbox.buttonattr
 		axisattr = mainwin.appmenu.controllerwin.controllerbox.butbox.axisattr
 		hatattr = mainwin.appmenu.controllerwin.controllerbox.butbox.hatattr
-
+#	if mainwin.appmenu.controllerwin.is_visible():
 		for i, button in enumerate(buttonattr[joystickinuse.get_id()]):
 			button.set_levelbar(button.get_value())
 		for i, axis in enumerate(axisattr[joystickinuse.get_id()]):
@@ -172,41 +225,32 @@ def update_gui():
 
 
 def serialbg():
-	joystickid = mainwin.appmenu.controllerwin.controllerbox.contcombo.get_active()
-	entryarray = mainwin.appmenu.controllerwin.controllerbox.bytebox.entryarray
-	buttonattr = mainwin.appmenu.controllerwin.controllerbox.butbox.buttonattr
-	axisattr = mainwin.appmenu.controllerwin.controllerbox.butbox.axisattr
-	hatattr = mainwin.appmenu.controllerwin.controllerbox.butbox.hatattr
 
-	port = mainwin.serialportbox.useport
-
-	transmitbytes = []
-
-	if joystickid != -1:
-		joystickinuse = pygame.joystick.Joystick(joystickid)
-
-		for bytes in entryarray:
-			if bytes.numbytes == 1:
-				if hasattr(bytes, 'axiscombo'):
-					None
-				else:
-					None	
-
-			if bytes.numbytes == 2:
-				None
+	#transmit = bytearray(mainwin.values)
+	if port.is_open:
+		
+		for i, trans in enumerate(values):
+			
+			if entryarray[i].numbytes == 2:
+			
+			#	port.write(trans.to_bytes(2, byteorder = 'big', signed = False))
+				i+=1
+			else:
+		#		port.write(trans.to_bytes(1, byteorder = 'big', signed = False))
+	
+				None			
 
 
+		
 
-
-
-
-	#format bytestruct and controller values here
-
-#	while(True):
-	if(port.is_open):
-		if(port.out_waiting == 0):
-			port.write(transbytes)
 	return True
+#	if len(transmitbytes) > 2:
+#		print(transmitbytes[1])
+#	if(port.is_open):
+
+#		port.write(transmitbytes)
+
+#	return True
 
 
 
