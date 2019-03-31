@@ -11,7 +11,7 @@ class ControllerWindow(Gtk.Window):
 	def __init__(self):
 
 		Gtk.Window.__init__(self, title="Settings")
-		self.set_default_size(1100,650)
+		self.set_default_size(1150,650)
 
 		mainbox = Gtk.Box(orientation = 'horizontal', spacing = 10)
 		serialbox = Gtk.Box(orientation = 'vertical', spacing = 10)
@@ -51,7 +51,7 @@ class ControllerBox(Gtk.Box):
 		Gtk.Box.__init__(self, orientation = 'vertical')
 		
 
-		self.joysticks = None
+		self.joystick2 = None
 
 		contbox = Gtk.Box(orientation = 'horizontal', spacing = 5)
 		contbox.set_margin_bottom(20)
@@ -59,13 +59,14 @@ class ControllerBox(Gtk.Box):
 		contbox.set_size_request(750,0)
 		self.butbox = ButtonBox()
 		self.labelbox = Gtk.Box(orientation = 'horizontal')
-		self.butbox.set_size_request(520,400)
+		self.butbox.set_size_request(600,400)
 		contlabel = Gtk.Label("Controller: ")
 
 
 	#component window
 		self.scrollbuttonwindow = Gtk.ScrolledWindow()
 		self.scrollbuttonwindow.set_min_content_height(500)
+
 		self.scrollbuttonwindow.set_propagate_natural_width(True)
 		self.scrollbuttonwindow.set_propagate_natural_height(True)
 		self.scrollbuttonwindow.set_overlay_scrolling(True)
@@ -258,7 +259,8 @@ class ControllerBox(Gtk.Box):
 		self.bytebox.map_button()
 		self.bytebox.map_hat()
 
-	#	self.show_all()
+		pygame.joystick.init()
+		self.joystick2 = pygame.joystick.Joystick(widget.get_active())
 
 class ButtonBox(Gtk.Box):
 	
