@@ -30,10 +30,7 @@ class MainWindow(Gtk.Window):
 
 		#menubar
 		self.appmenu = AppMenuBar()	
-		self.level1 = Gtk.LevelBar()
-		self.level1.set_min_value(0)
-		self.level1.set_max_value(200)
-		self.level1.set_value(3)
+	
 		
 		
 
@@ -41,6 +38,7 @@ class MainWindow(Gtk.Window):
 		self.mainbox = Gtk.Box(orientation='vertical', spacing = 6)
 		self.serialportbox = SerialMainBox()
 		self.scrolled_term = ScrolledTerm()
+		self.bytevalbox = ByteValBox()
 		
 		#serial settings window
 		self.appmenu.controllerwin.connect("delete-event", self.delete_controller)
@@ -58,7 +56,9 @@ class MainWindow(Gtk.Window):
 		#self.mainbox.add(self.sep)
 		
 		self.mainbox.add(self.joysticklabel)
-		self.mainbox.add(self.level1)
+		self.mainbox.add(self.bytevalbox)
+		
+
 		
 		self.show_all()
 
@@ -82,14 +82,14 @@ class MainWindow(Gtk.Window):
 					+ serialinfo[3])
 		
 		serialwin.hide_on_delete()
+		
+
 
 		return True
 
 	def delete_controller(self, window, event):
 		controllerwin = self.appmenu.controllerwin
 
-
-		joysticks = self.appmenu.controllerwin.controllerbox.joysticks
 		
 		if controllerwin.controllerbox.contcombo.get_active_text() != None:
 
@@ -99,7 +99,10 @@ class MainWindow(Gtk.Window):
 		
 
 		controllerwin.hide_on_delete()
-		return True
+		self.bytevalbox.entryarray = self.appmenu.controllerwin.controllerbox.bytebox.entryarray
+		self.bytevalbox.map()
+		
+		return True		
 
 	
 	def open_serial(self, widget):
@@ -251,6 +254,60 @@ class ScrolledTerm(Gtk.Box):
 		self.term_text.set_buffer(tbuf)
 
 
+
+
+class ByteValBox(Gtk.Box):
+
+	def __init__(self):
+		Gtk.Box.__init__(self, orientation = 'vertical', spacing = 25)
+		self.set_margin_top(20)
+		self.set_margin_left(5)
+		self.valbox = []
+		self.valrow = []
+		self.mainwin_vals = []
+		self.entryarray = None
+		
+
+
+	def map(self):
+		for val in self.valbox:
+	
+			val.destroy()
+		
+		for val in self.valrow:
+			val.destroy()
+
+
+		self.mainwin_vals = []
+		self.valbox = []
+		self.valrow = []
+		
+		for i, val in enumerate(self.entryarray):
+			self.mainwin_vals.append([])
+			self.mainwin_vals[i].append(Gtk.Label(val.bytenum.get_text()))
+			self.mainwin_vals[i][0].set_markup("<b>" + val.bytenum.get_text() + "</b>")
+			
+			self.mainwin_vals[i].append(Gtk.Label(''))
+
+			
+		for i in range(int(len(self.mainwin_vals)/5) + 1):
+			self.valrow.append(Gtk.Box(orientation = 'horizontal'))
+
+
+			
+		for i, val in enumerate(self.mainwin_vals):
+			
+			self.valbox.append(Gtk.Box(orientation = 'horizontal'))
+			self.valbox[i].add(val[0])
+			self.valbox[i].add(val[1])
+			self.valbox[i].set_size_request(120,0)
+			self.valrow[int(i/5)].add(self.valbox[i])
+			
+
+		for row in self.valrow:
+			self.add(row)
+			
+		self.show_all()
 
 
 class AppMenuBar(Gtk.MenuBar):

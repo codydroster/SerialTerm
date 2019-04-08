@@ -103,15 +103,15 @@ class AxisAttributes():
 
 	def get_value(self):
 
-		self.value = self.rawvalue * (self.max - self.min)/2 * self.inverted
+		self.value = self.rawvalue * self.max * self.inverted
 		return self.value
 
 	def set_levelbar(self, val):
-		self.level.set_min_value(self.min)
+
 		self.level.set_max_value(self.max)
-		middle = (self.max - self.min)/2
-		self.level.set_value(middle + val + .2)
-		self.labelval.set_text(str(int(self.value)))
+		middle = self.max/2
+		self.level.set_value(middle + val/2)
+		self.labelval.set_text(str(self.value)[:6])
 
 
 
@@ -154,16 +154,16 @@ class HatAttributes():
 		self.box.add(self.level)
 
 	def get_value(self):
-		self.value = self.rawvalue * (self.max - self.min)/2 * self.inverted
+		self.value = self.rawvalue * self.max * self.inverted
 		return self.value
 
 	def set_levelbar(self, val):
 		
 		self.level.set_max_value(abs(self.max))
-		middle = (self.max - self.min)/2
-		self.level.set_value(middle + val)
+		middle = self.max/2
+		self.level.set_value(middle + val/2)
 		
-		self.labelval.set_text(str(self.value)[:8])
+		self.labelval.set_text(str(self.value)[:6])
 
 
 

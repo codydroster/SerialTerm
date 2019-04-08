@@ -1,5 +1,6 @@
 import gi
 import pygame
+
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk, Gdk, GLib, GObject
 
@@ -8,18 +9,21 @@ from gi.repository import Gtk, Gdk, GLib, GObject
 class ConstantValue(Gtk.Box):
 
 	def __init__(self, byte):
-		Gtk.Box.__init__(self, orientation = 'vertical', spacing = 5)
+		Gtk.Box.__init__(self, orientation = 'vertical', spacing = 2)
 		self.set_margin_left(5)
-		self.box1 = Gtk.Box(self, orientation = 'horizontal', spacing = 5)
-		self.box2 = Gtk.Box(self, orientation = 'horizontal')
-
-
+		self.set_margin_bottom(10)
+		
+		self.boxtop = Gtk.Box(orientation = 'horizontal', spacing = 5)
+		self.boxbot = Gtk.Box(orientation = 'horizontal', spacing = 1)
 
 		self.numbytes = 1
 		self.byteval = 0
 
 
+
 		self.bytenum = Gtk.Label('B ' + str(byte) + ': ')
+		self.bytenum.set_markup("<b>" 'B ' + str(byte) + ': ' "</b>")
+		
 		self.bytenum.set_halign(Gtk.Align(1))
 		self.byteentry = Gtk.Entry()
 		self.byteentry.set_halign(Gtk.Align(1))
@@ -27,15 +31,14 @@ class ConstantValue(Gtk.Box):
 		self.byteentry.set_placeholder_text('0x00')
 		self.byteentry.set_width_chars(6)
 
-	#	self.byteentry.set_margin_left(12)
+		self.boxtop.add(self.bytenum)
+	
+		self.boxbot.add(self.byteentry)
+		self.boxbot.add(self.align)
 
+		self.add(self.boxtop)
+		self.add(self.boxbot)
 
-
-		self.box1.add(self.byteentry)
-		self.box1.add(self.align)
-		self.box2.add(self.bytenum)
-		self.add(self.box1)
-		self.add(self.box2)
 		self.show_all()
 
 
@@ -44,12 +47,13 @@ class ConstantValue(Gtk.Box):
 class ConstantAxis(Gtk.Box):
 
 	def __init__(self, byte):
-		Gtk.Box.__init__(self, orientation = 'vertical', spacing = 5)
-		self.box1 = Gtk.Box(orientation = 'horizontal', spacing = 5)
-		self.box2 = Gtk.Box(orientation = 'horizontal')
+		Gtk.Box.__init__(self, orientation = 'vertical', spacing = 2)
 		self.set_margin_left(5)
-		self.set_margin_right(5)
-		self.set_margin_bottom(5)
+		self.set_margin_bottom(10)
+
+		self.boxtop = Gtk.Box(orientation = 'horizontal', spacing = 5)
+		self.boxbot = Gtk.Box(orientation = 'horizontal', spacing = 1)
+		
 
 		self.numbytes = 1
 		self.byteval = 0
@@ -58,31 +62,35 @@ class ConstantAxis(Gtk.Box):
 		self.button1 = None
 		
 		self.bytenum = Gtk.Label('B ' + str(byte) + ': ')
+		self.bytenum.set_markup("<b>" 'B ' + str(byte) + ': ' "</b>")
+
 		self.byteentry = Gtk.Entry()
 		self.byteentry.set_placeholder_text('0x00')
 		self.byteentry.set_width_chars(6)
-	#	self.byteentry.set_margin_left(12)
+
 
 		self.axislab = Gtk.Label('Axis: ')
+		self.axislab.set_margin_left(10)
 		self.axiscombo = Gtk.ComboBoxText()
 		self.axiscombo.set_size_request(40,0)
 		
 		self.buttonlab = Gtk.Label('Button: ')
+		self.buttonlab.set_margin_left(10)
 		self.buttoncombo0 = Gtk.ComboBoxText()
 		self.buttoncombo0.set_size_request(40,0)
 		
 		self.buttoncombo1 = Gtk.ComboBoxText()
 		self.buttoncombo1.set_size_request(40,0)
 
-		self.box2.add(self.bytenum)
-		self.box1.add(self.byteentry)
-		self.box1.add(self.axislab)
-		self.box1.add(self.axiscombo)
-		self.box1.add(self.buttonlab)
-		self.box1.add(self.buttoncombo0)
-		self.box1.add(self.buttoncombo1)
-		self.add(self.box1)
-		self.add(self.box2)		
+		self.boxtop.add(self.bytenum)
+		self.boxbot.add(self.byteentry)
+		self.boxbot.add(self.axislab)
+		self.boxbot.add(self.axiscombo)
+		self.boxbot.add(self.buttonlab)
+		self.boxbot.add(self.buttoncombo0)
+		self.boxbot.add(self.buttoncombo1)
+		self.add(self.boxtop)
+		self.add(self.boxbot)		
 		self.show_all()
 
 
@@ -91,10 +99,12 @@ class ConstantAxis(Gtk.Box):
 class ConstantAxis2B(Gtk.Box):
 
 	def __init__(self, byte):
-		Gtk.Box.__init__(self, orientation = 'horizontal', spacing = 5)
-		self.set_margin_left(2)
-		self.set_margin_right(5)
-		self.set_margin_bottom(5)
+		Gtk.Box.__init__(self, orientation = 'vertical', spacing = 2)
+		self.set_margin_left(5)
+		self.set_margin_bottom(10)
+
+		self.boxtop = Gtk.Box(orientation = 'horizontal', spacing = 5)
+		self.boxbot = Gtk.Box(orientation = 'horizontal', spacing = 1)
 
 		self.numbytes = 2
 		self.byteval = 0
@@ -104,15 +114,18 @@ class ConstantAxis2B(Gtk.Box):
 		self.button1 = None
 
 		self.bytenum = Gtk.Label('B ' + str(byte) + '-' + str(byte + 1) + ': ')
+		self.bytenum.set_markup("<b>" 'B ' + str(byte) + '-' + str(byte + 1) + ': ' "</b>")
 		self.byteentry = Gtk.Entry()
 		self.byteentry.set_placeholder_text('0x00')
 		self.byteentry.set_width_chars(6)
 
 		self.axislab = Gtk.Label('Axis: ')
+		self.axislab.set_margin_left(10)
 		self.axiscombo = Gtk.ComboBoxText()
 		self.axiscombo.set_size_request(40,0)
 
 		self.buttonlab = Gtk.Label('Button: ')
+		self.buttonlab.set_margin_left(10)
 		self.buttoncombo0 = Gtk.ComboBoxText()
 		self.buttoncombo0.set_size_request(40,0)
 
@@ -120,13 +133,16 @@ class ConstantAxis2B(Gtk.Box):
 		self.buttoncombo1 = Gtk.ComboBoxText()
 		self.buttoncombo1.set_size_request(40,0)
 
-		self.add(self.bytenum)
-		self.add(self.byteentry)
-		self.add(self.axislab)
-		self.add(self.axiscombo)
-		self.add(self.buttonlab)
-		self.add(self.buttoncombo0)
-		self.add(self.buttoncombo1)
+		self.boxtop.add(self.bytenum)
+		self.boxbot.add(self.byteentry)
+		self.boxbot.add(self.axislab)
+		self.boxbot.add(self.axiscombo)
+		self.boxbot.add(self.buttonlab)
+		self.boxbot.add(self.buttoncombo0)
+		self.boxbot.add(self.buttoncombo1)
+		self.add(self.boxtop)
+		self.add(self.boxbot)
+
 		self.show_all()
 
 
@@ -135,10 +151,13 @@ class ConstantAxis2B(Gtk.Box):
 class ConstantAxisHat(Gtk.Box):
 
 	def __init__(self, byte):
-		Gtk.Box.__init__(self, orientation = 'horizontal', spacing = 5)
+		Gtk.Box.__init__(self, orientation = 'vertical', spacing = 2)
 		self.set_margin_left(5)
-		self.set_margin_right(5)
-		self.set_margin_bottom(5)
+		self.set_margin_bottom(10)
+
+		self.boxtop = Gtk.Box(orientation = 'horizontal', spacing = 5)
+		self.boxbot = Gtk.Box(orientation = 'horizontal', spacing = 1)
+
 		self.numbytes = 1
 		self.byteval = 0
 
@@ -146,27 +165,33 @@ class ConstantAxisHat(Gtk.Box):
 		self.hat = 0
 		
 		self.bytenum = Gtk.Label('B ' + str(byte) + ': ')
+		self.bytenum.set_markup("<b>" 'B ' + str(byte) + ': ' "</b>")
 		self.byteentry = Gtk.Entry()
 		self.byteentry.set_placeholder_text('0x00')
 		self.byteentry.set_width_chars(6)
-		self.byteentry.set_margin_left(12)
+
 
 		self.axislab = Gtk.Label('Axis: ')
+		self.axislab.set_margin_left(10)
 		self.axiscombo = Gtk.ComboBoxText()
 		self.axiscombo.set_size_request(40,0)
 		
 		self.hatlabel = Gtk.Label('Hat: ')
+		self.hatlabel.set_margin_left(10)
 		self.hatcombo = Gtk.ComboBoxText()
 		self.hatcombo.set_size_request(40,0)
 		
 	
 
-		self.add(self.bytenum)
-		self.add(self.byteentry)
-		self.add(self.axislab)
-		self.add(self.axiscombo)
-		self.add(self.hatlabel)
-		self.add(self.hatcombo)
+		self.boxtop.add(self.bytenum)
+		self.boxbot.add(self.byteentry)
+		self.boxbot.add(self.axislab)
+		self.boxbot.add(self.axiscombo)
+		self.boxbot.add(self.hatlabel)
+		self.boxbot.add(self.hatcombo)
+
+		self.add(self.boxtop)
+		self.add(self.boxbot)
 
 		self.show_all()
 
@@ -176,10 +201,13 @@ class ConstantAxisHat(Gtk.Box):
 class ConstantAxisHat2B(Gtk.Box):
 
 	def __init__(self, byte):
-		Gtk.Box.__init__(self, orientation = 'horizontal', spacing = 5)
+		Gtk.Box.__init__(self, orientation = 'vertical', spacing = 2)
 		self.set_margin_left(5)
-		self.set_margin_right(5)
-		self.set_margin_bottom(5)
+		self.set_margin_bottom(10)
+
+		self.boxtop = Gtk.Box(orientation = 'horizontal', spacing = 5)
+		self.boxbot = Gtk.Box(orientation = 'horizontal', spacing = 1)
+
 		self.numbytes = 2
 		self.byteval = 0
 
@@ -187,26 +215,33 @@ class ConstantAxisHat2B(Gtk.Box):
 		self.hat = None
 
 		self.bytenum = Gtk.Label('B ' + str(byte) + '-' + str(byte + 1) + ': ')
+		self.bytenum.set_markup("<b>" 'B ' + str(byte) + '-' + str(byte + 1) + ': ' "</b>")
 		self.byteentry = Gtk.Entry()
 		self.byteentry.set_placeholder_text('0x00')
 		self.byteentry.set_width_chars(6)
 
 		self.axislab = Gtk.Label('Axis: ')
+		self.axislab.set_margin_left(10)
 		self.axiscombo = Gtk.ComboBoxText()
 		self.axiscombo.set_size_request(40,0)
 
 		self.hatlabel = Gtk.Label('Hat: ')
+		self.hatlabel.set_margin_left(10)
 		self.hatcombo = Gtk.ComboBoxText()
 		self.hatcombo.set_size_request(40,0)
 
 
-		self.add(self.bytenum)
-		self.add(self.byteentry)
-		self.add(self.axislab)
-		self.add(self.axiscombo)
-		self.add(self.hatlabel)
-		self.add(self.hatcombo)
+		self.boxtop.add(self.bytenum)
+		self.boxbot.add(self.byteentry)
+		self.boxbot.add(self.axislab)
+		self.boxbot.add(self.axiscombo)
+		self.boxbot.add(self.hatlabel)
+		self.boxbot.add(self.hatcombo)
 		
+		self.add(self.boxtop)
+		self.add(self.boxbot)
+	
+
 		self.show_all()
 
 

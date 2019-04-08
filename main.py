@@ -1,7 +1,8 @@
-#!/usr/bin/env python
+
 
 
 import window
+
 
 import threading
 import time
@@ -54,7 +55,7 @@ def background():
 
 		pygame.event.pump()
 		
-		print(joystickinuse.get_axis(1))
+	#	print(joystickinuse.get_axis(1))
 #main code
 
 		if joystickinuse.get_id() == joystickid:
@@ -86,11 +87,10 @@ def background():
 				hatattr[joystickinuse.get_id()][i].buttoncnt += hatattr[joystickinuse.get_id()][i].get_value()
 				hatattr[joystickinuse.get_id()][i+1].buttoncnt += hatattr[joystickinuse.get_id()][i+1].get_value()
 
-	#array to store values - not formatted into byte array
-		
+	
 
+		#array to store values - not formatted into byte array
 		
-
 
 			for i in range(len(entryarray)):
 				buttoncount = 0
@@ -105,7 +105,7 @@ def background():
 
 				if hasattr(entryarray[i], 'button0'):
 					if entryarray[i].button0 != None:
-						buttoncount = buttonattr[joystickinuse.get_id()][entryarray[i].button0].buttoncnt 
+						buttoncount += buttonattr[joystickinuse.get_id()][entryarray[i].button0].buttoncnt 
 					if entryarray[i].button1 != None:
 						buttoncount +=	buttonattr[joystickinuse.get_id()][entryarray[i].button1].buttoncnt
 				
@@ -131,14 +131,19 @@ def background():
 
 					
 def update_gui():
+	mainwin_vals = mainwin.bytevalbox.mainwin_vals
 	joystickid = mainwin.appmenu.controllerwin.controllerbox.contcombo.get_active()
 	
 	if joystickid != -1:
+		
+		
 		joystickinuse = pygame.joystick.Joystick(joystickid)
 		buttonattr = mainwin.appmenu.controllerwin.controllerbox.butbox.buttonattr
 		axisattr = mainwin.appmenu.controllerwin.controllerbox.butbox.axisattr
 		hatattr = mainwin.appmenu.controllerwin.controllerbox.butbox.hatattr
-#	if mainwin.appmenu.controllerwin.is_visible():
+	
+
+		
 		for i, button in enumerate(buttonattr[joystickinuse.get_id()]):
 			button.set_levelbar(button.get_value())
 		for i, axis in enumerate(axisattr[joystickinuse.get_id()]):
@@ -147,6 +152,15 @@ def update_gui():
 		for i in range(joystickinuse.get_numhats()):
 			hatattr[joystickinuse.get_id()][i].set_levelbar(hatattr[joystickinuse.get_id()][i].get_value())
 			hatattr[joystickinuse.get_id()][i+1].set_levelbar(hatattr[joystickinuse.get_id()][i+1].get_value())
+		
+		
+	#mainwin update
+		if len(mainwin_vals) == len(values):
+			for i, val in enumerate(mainwin_vals):
+
+				val[1].set_text(str(values[i]))
+
+
 		
 
 
@@ -160,50 +174,30 @@ def serialbg():
 	
 	for i, byt in enumerate(values):
 
-		if entryarray[i].numbytes ==1:
+		if entryarray[i].numbytes == 1:
 			transmit.append(byt)
 
-		elif entryarray[i].numbytes ==2:
+		elif entryarray[i].numbytes == 2:
 			transmit.append((byt >> 8) & 0xff)
 			transmit.append(byt & 0xff)
 	
 	if port.is_open:
-		
 			
 		port.write(transmit)
-	#	for i, trans in enumerate(values):
-			
-	#		if entryarray[i].numbytes == 2:
-			
-	#			port.write(trans.to_bytes(2, byteorder = 'big', signed = False))
-	#			print(trans.to_bytes(2, byteorder = 'big', signed = False))
-	#			i+=1
-	#		else:
-	#			port.write(trans.to_bytes(1, byteorder = 'big', signed = False))
-	
-						
-
-
-		
+				
 
 	return True
-
-#	if len(transmitbytes) > 2:
-#		print(transmitbytes[1])
-#	if(port.is_open):
-
-#		port.write(transmitbytes)
-
-#	return True
-
-
-
-
 
 
 
 
 app_main()
+
+
+
+
+
+
 
 
 

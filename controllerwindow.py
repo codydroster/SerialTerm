@@ -11,9 +11,10 @@ class ControllerWindow(Gtk.Window):
 	def __init__(self):
 
 		Gtk.Window.__init__(self, title="Settings")
-		self.set_default_size(1150,650)
+		self.set_default_size(1100,650)
 
 		mainbox = Gtk.Box(orientation = 'horizontal', spacing = 10)
+		mainbox.set_margin_top(10)
 		serialbox = Gtk.Box(orientation = 'vertical', spacing = 10)
 
 
@@ -59,7 +60,7 @@ class ControllerBox(Gtk.Box):
 		contbox.set_size_request(750,0)
 		self.butbox = ButtonBox()
 		self.labelbox = Gtk.Box(orientation = 'horizontal')
-		self.butbox.set_size_request(600,400)
+
 		contlabel = Gtk.Label("Controller: ")
 
 
@@ -68,6 +69,7 @@ class ControllerBox(Gtk.Box):
 		self.scrollbuttonwindow.set_min_content_height(500)
 
 		self.scrollbuttonwindow.set_propagate_natural_width(True)
+		self.scrollbuttonwindow.set_size_request(550,0)
 		self.scrollbuttonwindow.set_propagate_natural_height(True)
 		self.scrollbuttonwindow.set_overlay_scrolling(True)
 
@@ -178,6 +180,10 @@ class ControllerBox(Gtk.Box):
 		endaxis = self.endpointaxisbox
 		endhat = self.endpointhatbox
 
+
+
+	#set endpoint
+
 		if widget is endbut.entrymax:
 			self.butbox.buttonattr[self.contcombo.get_active()][endbut.inputcombo.get_active()].max = float(endbut.entrymax.get_text())
 
@@ -276,9 +282,6 @@ class ButtonBox(Gtk.Box):
 		self.hatbox = []
 		self.axisbox = []
 
-		self.buttonlist = []
-		self.hatlist = []
-		self.axislist = []
 
 		self.joysticks = None
 
@@ -303,8 +306,8 @@ class ButtonBox(Gtk.Box):
 				joy.init()
 
 		
-		#buttonlist
-			self.buttonlist.append([])
+		#buttonattr
+
 			self.buttonattr.append([])
 
 			self.buttonbox.insert(j, Gtk.Box(orientation = 'vertical'))
@@ -314,8 +317,8 @@ class ButtonBox(Gtk.Box):
 
 
 	
-		#axislist
-			self.axislist.append([])
+		#axisattr
+
 			self.axisattr.append([])
 
 			self.axisbox.insert(j, Gtk.Box(orientation = 'vertical'))
@@ -325,8 +328,8 @@ class ButtonBox(Gtk.Box):
 
 
 	
-		#hatlist
-			self.hatlist.append([])
+		#hatattr
+
 			self.hatattr.append([])
 
 			self.hatbox.insert(j, Gtk.Box(orientation = 'vertical'))
@@ -341,7 +344,7 @@ class ButtonBox(Gtk.Box):
 
 		self.show_all()
 		
-	#buttonlist
+	#buttonbox
 		for box in self.buttonbox:
 			if box in self.get_children():
 				self.remove(box)
@@ -353,7 +356,7 @@ class ButtonBox(Gtk.Box):
 				self.show_all()
 
 	
-	#hatlist
+	#hatbox
 		for box in self.hatbox:
 			if box in self.get_children():
 				self.remove(box)
@@ -364,7 +367,7 @@ class ButtonBox(Gtk.Box):
 				self.add(self.hatbox[i])
 				self.show_all()
 
-	#axislist
+	#axisbox
 		for box in self.axisbox:
 			if box in self.get_children():
 				self.remove(box)
@@ -403,6 +406,9 @@ class EndPointBox(Gtk.Box):
 		self.inputcombo.set_size_request(75,0)
 		inputbox.add(self.inputcombo)
 		
+
+		
+
 
 		if typ != 'button':
 			self.inputinv = Gtk.ToggleButton(label = "Inv")
