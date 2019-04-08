@@ -17,7 +17,7 @@ class ControllerWindow(Gtk.Window):
 		mainbox.set_margin_top(10)
 		serialbox = Gtk.Box(orientation = 'vertical', spacing = 10)
 
-
+		
 
 		sep = Gtk.VSeparator()
 		self.controllerbox = ControllerBox()
@@ -27,10 +27,22 @@ class ControllerWindow(Gtk.Window):
 		self.controllerbox.endpointbutbox.entrymax.connect("activate", self.lose_focus)
 		self.controllerbox.endpointhatbox.entrymax.connect("activate", self.lose_focus)
 		self.controllerbox.endpointaxisbox.entrymax.connect("activate", self.lose_focus)
+		
+		self.controllerbox.endpointaxisbox.sumaxisbut.connect("toggled", self.sum_toggled)
 
 
 		mainbox.add(self.controllerbox)
 		self.add(mainbox)
+
+
+	def sum_toggled(self, widget):
+		contcombo = self.controllerbox.contcombo
+		inputcombo = self.controllerbox.endpointaxisbox.inputcombo
+		self.controllerbox.butbox.axisattr[contcombo.get_active()][inputcombo.get_active()].sumaxisbool = widget.get_active()
+		
+
+			
+		
 
 	def lose_focus(self, widget):
 
@@ -207,7 +219,7 @@ class ControllerBox(Gtk.Box):
 		#axis
 		if widget is endaxis.inputcombo:
 			endaxis.entrymax.set_text(str(self.butbox.axisattr[self.contcombo.get_active()][endaxis.inputcombo.get_active()].max))
-			
+			endaxis.sumaxisbut.set_active(self.butbox.axisattr[self.contcombo.get_active()][endaxis.inputcombo.get_active()].sumaxisbool)
 			if self.butbox.axisattr[self.contcombo.get_active()][endaxis.inputcombo.get_active()].inverted == 1:
 				endaxis.inputinv.set_active(False)
 			else:
@@ -391,7 +403,10 @@ class EndPointBox(Gtk.Box):
 		self.minbox = Gtk.Box(orientation = 'horizontal', spacing = 5)
 		self.maxbox = Gtk.Box(orientation = 'horizontal', spacing = 5)
 		sep = Gtk.Separator()
+		
 
+
+		
 		inputlabel = Gtk.Label(label)
 		inputlabel.set_markup("<b>" + label + "</b>")
 		inputlabel.set_halign(Gtk.Align.START)
@@ -434,6 +449,13 @@ class EndPointBox(Gtk.Box):
 	
 		self.add(labelmax)	
 		self.add(self.maxbox)	
+		
+		if typ == 'axis':
+			self.sumaxisbut = Gtk.ToggleButton(label = 'SUM AXIS')
+			self.add(self.sumaxisbut)
+		
+		
+
 		self.add(sep)
 
 
@@ -443,11 +465,10 @@ class EndPointBox(Gtk.Box):
 
 		for i, comp in enumerate(self.attr[self.joystickid]):
 			self.inputcombo.insert_text(i, comp.name)
-
+			
 		self.inputcombo.set_active(0)
 
 	
-
 
 
 
@@ -615,10 +636,10 @@ class ByteBox(Gtk.Box):
 			if widget is byte.byteentry:
 				try:
 					byte.byteval = int(byte.byteentry.get_text(), 0)
-
+					
 				except:
 					byte.byteval = 0
-
+					print('invalid')
 
 
 

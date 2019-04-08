@@ -58,6 +58,10 @@ class ConstantAxis(Gtk.Box):
 		self.numbytes = 1
 		self.byteval = 0
 		self.axis = None
+		self.totalcount = 0
+		self.axistotal = 0
+
+		
 		self.button0 = None
 		self.button1 = None
 		
@@ -108,6 +112,8 @@ class ConstantAxis2B(Gtk.Box):
 
 		self.numbytes = 2
 		self.byteval = 0
+		self.totalcount = 0
+		self.axistotal = 0
 
 		self.axis = None
 		self.button0 = None
@@ -162,7 +168,9 @@ class ConstantAxisHat(Gtk.Box):
 		self.byteval = 0
 
 		self.axis = None
-		self.hat = 0
+		self.totalcount = 0
+		self.axistotal = 0
+
 		
 		self.bytenum = Gtk.Label('B ' + str(byte) + ': ')
 		self.bytenum.set_markup("<b>" 'B ' + str(byte) + ': ' "</b>")
@@ -210,6 +218,8 @@ class ConstantAxisHat2B(Gtk.Box):
 
 		self.numbytes = 2
 		self.byteval = 0
+		self.totalcount = 0
+		self.axistotal = 0
 
 		self.axis = None
 		self.hat = None

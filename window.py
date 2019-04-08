@@ -28,6 +28,7 @@ class MainWindow(Gtk.Window):
 		self.joystickname = None
 		self.joysticklabel = Gtk.Label()
 
+
 		#menubar
 		self.appmenu = AppMenuBar()	
 	
@@ -36,9 +37,11 @@ class MainWindow(Gtk.Window):
 
 		#layout containers
 		self.mainbox = Gtk.Box(orientation='vertical', spacing = 6)
+
 		self.serialportbox = SerialMainBox()
 		self.scrolled_term = ScrolledTerm()
 		self.bytevalbox = ByteValBox()
+
 		
 		#serial settings window
 		self.appmenu.controllerwin.connect("delete-event", self.delete_controller)
@@ -55,6 +58,8 @@ class MainWindow(Gtk.Window):
 				
 		#self.mainbox.add(self.sep)
 		
+
+
 		self.mainbox.add(self.joysticklabel)
 		self.mainbox.add(self.bytevalbox)
 		
@@ -318,7 +323,7 @@ class AppMenuBar(Gtk.MenuBar):
 		#initialize
 		filemenu = Gtk.Menu()
 		viewmenu = Gtk.Menu()
-
+		optionsmenu = Gtk.Menu()
 		self.controllerwin = controllerwindow.ControllerWindow()
 
 		self.serialwin = serialwindow.SerialWindow()
@@ -327,26 +332,50 @@ class AppMenuBar(Gtk.MenuBar):
 		fileitem = Gtk.MenuItem("File")
 		exititem = Gtk.MenuItem("exit")
 		viewitem = Gtk.MenuItem("View")
-		optionsitem = Gtk.MenuItem("Controller")
+		controlleritem = Gtk.MenuItem("Controller")
 		serialitem = Gtk.MenuItem("Serial")
-		
-
+		clearitem = Gtk.MenuItem("reset values")
+		baseitem = Gtk.MenuItem("Base: hex")
+		optionsitem = Gtk.MenuItem("Options")
 		
 		exititem.connect("activate", Gtk.main_quit)
 
-		optionsitem.connect("activate", self.open_cont)
+		controlleritem.connect("activate", self.open_cont)
 		serialitem.connect("activate", self.open_serial)
-
+		clearitem.connect("activate", self.clear_val)
+		
+		
+		
 		fileitem.set_submenu(filemenu)
 		filemenu.add(exititem)
 		
 		
+		
 
-		viewmenu.add(optionsitem)
+		viewmenu.add(controlleritem)
 		viewmenu.add(serialitem)
 		viewitem.set_submenu(viewmenu)
+		
+		optionsitem.set_submenu(optionsmenu)
+		optionsmenu.add(clearitem)
+		optionsmenu.add(baseitem)
+		
+		
 		self.add(fileitem)
 		self.add(viewitem)
+		self.add(optionsitem)
+		
+	def clear_val(self, widget):
+		controllerbox = self.controllerwin.controllerbox
+		for value in controllerbox.bytebox.entryarray:
+			if hasattr(value, 'axistotal'):
+				value.axistotal = 0
+			
+			if hasattr(value, 'totalcount'):
+				value.totalcount = 0
+	
+	
+	
 
 	def open_cont(self, widget):
 	

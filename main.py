@@ -9,6 +9,8 @@ import time
 import serial
 import pygame
 import sys
+import warnings
+warnings.filterwarnings(action="ignore")
 from multiprocessing import Process, Manager
 from gi.repository import Gtk, Gdk, GLib, GObject
 
@@ -16,6 +18,8 @@ mainwin = window.MainWindow()
 
 valuesinbyte = bytearray()
 entryarray = mainwin.appmenu.controllerwin.controllerbox.bytebox.entryarray
+controllerbox = mainwin.appmenu.controllerwin.controllerbox
+
 
 values = mainwin.values
 port = mainwin.serialportbox.useport
@@ -48,7 +52,7 @@ def background():
 	joystickid = mainwin.appmenu.controllerwin.controllerbox.contcombo.get_active()
 	joystickinuse = mainwin.appmenu.controllerwin.controllerbox.joystick2
 	
-	joystickid = mainwin.appmenu.controllerwin.controllerbox.contcombo.get_active()
+	
 
 
 	if joystickid != -1:
@@ -93,35 +97,35 @@ def background():
 		
 
 			for i in range(len(entryarray)):
-				buttoncount = 0
-				axisval = 0
-				constval = 0
+
 
 				if len(values) < (i + 1):
 					values.append(0)
 				
-				if hasattr(entryarray[i], 'byteval'):
-					constval = entryarray[i].byteval
 
 				if hasattr(entryarray[i], 'button0'):
 					if entryarray[i].button0 != None:
-						buttoncount += buttonattr[joystickinuse.get_id()][entryarray[i].button0].buttoncnt 
+						entryarray[i].totalcount += buttonattr[joystickinuse.get_id()][entryarray[i].button0].buttoncnt
+						buttonattr[joystickinuse.get_id()][entryarray[i].button0].buttoncnt = 0
+						
 					if entryarray[i].button1 != None:
-						buttoncount +=	buttonattr[joystickinuse.get_id()][entryarray[i].button1].buttoncnt
-				
+						entryarray[i].totalcount += buttonattr[joystickinuse.get_id()][entryarray[i].button1].buttoncnt
+						buttonattr[joystickinuse.get_id()][entryarray[i].button1].buttoncnt = 0
 				
 
 				if hasattr(entryarray[i], 'hat'):
 					if entryarray[i].hat != None:
-						buttoncount = hatattr[joystickinuse.get_id()][entryarray[i].hat].buttoncnt 
+						entryarray[i].totalcount = hatattr[joystickinuse.get_id()][entryarray[i].hat].buttoncnt 
 				
 
 				if hasattr(entryarray[i], 'axis'):
 					if entryarray[i].axis !=None:
-						axisval = axisattr[joystickinuse.get_id()][entryarray[i].axis].value
-					
+						if axisattr[joystickinuse.get_id()][entryarray[i].axis].sumaxisbool == True:
+							entryarray[i].axistotal += axisattr[joystickinuse.get_id()][entryarray[i].axis].value
+						else:
+							entryarray[i].axistotal = axisattr[joystickinuse.get_id()][entryarray[i].axis].value
 
-				values[i] = int(buttoncount + axisval + constval)
+				values[i] = int(entryarray[i].totalcount + entryarray[i].axistotal + entryarray[i].byteval)
 			
 
 
@@ -145,14 +149,19 @@ def update_gui():
 
 		
 		for i, button in enumerate(buttonattr[joystickinuse.get_id()]):
-			button.set_levelbar(button.get_value())
-		for i, axis in enumerate(axisattr[joystickinuse.get_id()]):
-			axis.set_levelbar(axis.get_value())
 
+				button.set_levelbar(button.get_value())
+
+				
+		for i, axis in enumerate(axisattr[joystickinuse.get_id()]):
+
+				axis.set_levelbar(axis.get_value())
+				
 		for i in range(joystickinuse.get_numhats()):
-			hatattr[joystickinuse.get_id()][i].set_levelbar(hatattr[joystickinuse.get_id()][i].get_value())
-			hatattr[joystickinuse.get_id()][i+1].set_levelbar(hatattr[joystickinuse.get_id()][i+1].get_value())
-		
+
+				hatattr[joystickinuse.get_id()][i].set_levelbar(hatattr[joystickinuse.get_id()][i].get_value())
+				hatattr[joystickinuse.get_id()][i+1].set_levelbar(hatattr[joystickinuse.get_id()][i+1].get_value())
+
 		
 	#mainwin update
 		if len(mainwin_vals) == len(values):
@@ -160,6 +169,8 @@ def update_gui():
 
 				val[1].set_text(str(values[i]))
 
+
+	#count gui update
 
 		
 

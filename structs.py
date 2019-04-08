@@ -1,4 +1,6 @@
 import gi
+import sys
+
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk, Gdk, GLib, GObject
 
@@ -71,6 +73,7 @@ class AxisAttributes():
 		self.inverted = 1
 		self.value = 1
 
+		self.sumaxisbool = 0
 
 #GTK
 		self.box = Gtk.Box(orientation = 'vertical')
