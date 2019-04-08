@@ -18,6 +18,7 @@ class ConstantValue(Gtk.Box):
 
 		self.numbytes = 1
 		self.byteval = 0
+		self.totalcount = 0
 
 
 
