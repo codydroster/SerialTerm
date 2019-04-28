@@ -17,7 +17,7 @@ class MainWindow(Gtk.Window):
 	
 
 	def __init__(self):
-		Gtk.Window.__init__(self, title="Serial Term")
+		Gtk.Window.__init__(self, title="UART Gamepad")
 		self.set_default_size(800, 600)
 
 		
@@ -58,9 +58,9 @@ class MainWindow(Gtk.Window):
 				
 		#self.mainbox.add(self.sep)
 		
-
-
 		self.mainbox.add(self.joysticklabel)
+		
+	
 		self.mainbox.add(self.bytevalbox)
 		
 
@@ -171,7 +171,7 @@ class SerialMainBox(Gtk.Box):
 		self.edit = Gtk.Entry()
 		self.serialinfolabel = Gtk.Label()
 		
-		self.serialinfo = ['9600', '8', 'None', '1']
+		self.serialinfo = ['115200', '8', 'None', '1']
 		self.serialinfolabel.set_text(self.serialinfo[0] + ', '
 						+ self.serialinfo[1] 
 						+ '-' + self.serialinfo[2][0] + '-'
@@ -232,16 +232,29 @@ class ScrolledTerm(Gtk.Box):
 		self.term_text.set_editable(False)
 		self.term_text.set_size_request(100, 300)
 
-		self.sendentry = Gtk.Entry()
+
+		self.entry_box = Gtk.Box(orientation = 'horizontal')
+		self.entry_box.set_margin_bottom(15)
+		self.send_entry = Gtk.Entry()
+		self.send_button = Gtk.Button(label = 'SEND')
+
+		self.send_entry.set_width_chars(48)
+		self.send_entry.set_margin_left(10)
+		self.send_entry.set_margin_right(10)
 
 
-			
 
-		self.sendentry.set_width_chars(40)
-		self.sendentry.set_margin_left(10)
-		self.sendentry.set_margin_right(10)
-		self.sendentry.set_margin_bottom(10)
+	
+		
+		self.transmitctrl_label = Gtk.Label('CONTROLLER TRANSMIT:')
+		self.transmitctrl_label.set_margin_left(50)
+		
+		self.transmitctrl_switch = Gtk.Switch()
+		self.transmitctrl_switch.set_margin_left(10)
+		self.transmitctrl_switch.set_margin_right(5)
 
+		
+		
 		self.scrolled_window.set_propagate_natural_height(True)
 		self.scrolled_window.set_margin_left(10)
 		self.scrolled_window.set_margin_right(10)
@@ -250,7 +263,11 @@ class ScrolledTerm(Gtk.Box):
 
 		self.scrolled_window.add(self.term_text)
 		self.add(self.scrolled_window)
-		self.add(self.sendentry)
+		self.entry_box.add(self.send_entry)
+		self.entry_box.add(self.send_button)
+		self.entry_box.add(self.transmitctrl_label)
+		self.entry_box.add(self.transmitctrl_switch)
+		self.add(self.entry_box)
 
 
 	def insert_text_term(self, text):
@@ -289,13 +306,13 @@ class ByteValBox(Gtk.Box):
 		
 		for i, val in enumerate(self.entryarray):
 			self.mainwin_vals.append([])
-			self.mainwin_vals[i].append(Gtk.Label(val.bytenum.get_text()))
-			self.mainwin_vals[i][0].set_markup("<b>" + val.bytenum.get_text() + "</b>")
+			self.mainwin_vals[i].append(Gtk.Label(val.bytenum_label.get_text()))
+			self.mainwin_vals[i][0].set_markup("<b>" + val.bytenum_label.get_text() + "</b>")
 			
 			self.mainwin_vals[i].append(Gtk.Label(''))
 
 			
-		for i in range(int(len(self.mainwin_vals)/5) + 1):
+		for i in range(int(len(self.mainwin_vals)/6) + 1):
 			self.valrow.append(Gtk.Box(orientation = 'horizontal'))
 
 
@@ -306,7 +323,7 @@ class ByteValBox(Gtk.Box):
 			self.valbox[i].add(val[0])
 			self.valbox[i].add(val[1])
 			self.valbox[i].set_size_request(120,0)
-			self.valrow[int(i/5)].add(self.valbox[i])
+			self.valrow[int(i/6)].add(self.valbox[i])
 			
 
 		for row in self.valrow:
@@ -334,8 +351,8 @@ class AppMenuBar(Gtk.MenuBar):
 		viewitem = Gtk.MenuItem("View")
 		controlleritem = Gtk.MenuItem("Controller")
 		serialitem = Gtk.MenuItem("Serial")
-		clearitem = Gtk.MenuItem("reset values")
-		baseitem = Gtk.MenuItem("Base: hex")
+		clearitem = Gtk.MenuItem("Reset Values")
+
 		optionsitem = Gtk.MenuItem("Options")
 		
 		exititem.connect("activate", Gtk.main_quit)
@@ -358,8 +375,7 @@ class AppMenuBar(Gtk.MenuBar):
 		
 		optionsitem.set_submenu(optionsmenu)
 		optionsmenu.add(clearitem)
-		optionsmenu.add(baseitem)
-		
+
 		
 		self.add(fileitem)
 		self.add(viewitem)

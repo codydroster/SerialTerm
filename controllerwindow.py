@@ -1,7 +1,8 @@
 import gi
 import pygame
-import bytetype
-import structs
+import transmitbyte
+import controllerattributes
+
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk, Gdk, GLib, GObject
 
@@ -10,8 +11,8 @@ from gi.repository import Gtk, Gdk, GLib, GObject
 class ControllerWindow(Gtk.Window):
 	def __init__(self):
 
-		Gtk.Window.__init__(self, title="Settings")
-		self.set_default_size(1100,650)
+		Gtk.Window.__init__(self, title="Controller Settings")
+		self.set_default_size(1050,750)
 
 		mainbox = Gtk.Box(orientation = 'horizontal', spacing = 10)
 		mainbox.set_margin_top(10)
@@ -24,11 +25,11 @@ class ControllerWindow(Gtk.Window):
 
 
 		self.controllerbox.bytebox.typeadd.connect('clicked', self.map_connect)
-		self.controllerbox.endpointbutbox.entrymax.connect("activate", self.lose_focus)
-		self.controllerbox.endpointhatbox.entrymax.connect("activate", self.lose_focus)
-		self.controllerbox.endpointaxisbox.entrymax.connect("activate", self.lose_focus)
+		self.controllerbox.endpoint_button_box.entrymax.connect("activate", self.lose_focus)
+		self.controllerbox.endpoint_hat_box.entrymax.connect("activate", self.lose_focus)
+		self.controllerbox.endpoint_axis_box.entrymax.connect("activate", self.lose_focus)
 		
-		self.controllerbox.endpointaxisbox.sumaxisbut.connect("toggled", self.sum_toggled)
+		self.controllerbox.endpoint_axis_box.sumaxisbut.connect("toggled", self.sum_toggled)
 
 
 		mainbox.add(self.controllerbox)
@@ -37,7 +38,7 @@ class ControllerWindow(Gtk.Window):
 
 	def sum_toggled(self, widget):
 		contcombo = self.controllerbox.contcombo
-		inputcombo = self.controllerbox.endpointaxisbox.inputcombo
+		inputcombo = self.controllerbox.endpoint_axis_box.inputcombo
 		self.controllerbox.butbox.axisattr[contcombo.get_active()][inputcombo.get_active()].sumaxisbool = widget.get_active()
 		
 
@@ -45,7 +46,7 @@ class ControllerWindow(Gtk.Window):
 		
 
 	def lose_focus(self, widget):
-
+		
 		self.set_focus(None)
 		return True
 		
@@ -53,8 +54,8 @@ class ControllerWindow(Gtk.Window):
 	#connect bytebox entries to lose focus on event: ENTER
 	def map_connect(self, widget):
 		for ele in self.controllerbox.bytebox.entryarray:
-			if hasattr(ele, 'byteentry'):
-				ele.byteentry.connect("activate", self.lose_focus)
+			if hasattr(ele, 'byte_entry'):
+				ele.byte_entry.connect("activate", self.lose_focus)
 
 	
 
@@ -105,23 +106,23 @@ class ControllerBox(Gtk.Box):
 		
 
 	#EndPointBox
-		self.endpointbutbox = EndPointBox(label='Button:', typ='button')
+		self.endpoint_button_box = EndPointBox(label='Button:', typ='button')
 
-		self.endpointhatbox = EndPointBox(label='Hat: ', typ='hat')
-		self.endpointaxisbox = EndPointBox(label='Axis:',typ='axis')		
-
-
-		self.endpointbutbox.entrymax.connect('focus-out-event', self.update_endpoints)
-		self.endpointaxisbox.entrymax.connect('focus-out-event', self.update_endpoints)
-		self.endpointhatbox.entrymax.connect('focus-out-event', self.update_endpoints)
+		self.endpoint_hat_box = EndPointBox(label='Hat: ', typ='hat')
+		self.endpoint_axis_box = EndPointBox(label='Axis:',typ='axis')		
 
 
-		self.endpointbutbox.inputcombo.connect('changed', self.input_changed)
-		self.endpointaxisbox.inputcombo.connect('changed', self.input_changed)
-		self.endpointhatbox.inputcombo.connect('changed', self.input_changed)
+		self.endpoint_button_box.entrymax.connect('focus-out-event', self.update_endpoints)
+		self.endpoint_axis_box.entrymax.connect('focus-out-event', self.update_endpoints)
+		self.endpoint_hat_box.entrymax.connect('focus-out-event', self.update_endpoints)
+
+
+		self.endpoint_button_box.inputcombo.connect('changed', self.input_changed)
+		self.endpoint_axis_box.inputcombo.connect('changed', self.input_changed)
+		self.endpoint_hat_box.inputcombo.connect('changed', self.input_changed)
 		
-		self.endpointaxisbox.inputinv.connect('toggled', self.invert)
-		self.endpointhatbox.inputinv.connect('toggled', self.invert)
+		self.endpoint_axis_box.inputinv.connect('toggled', self.invert)
+		self.endpoint_hat_box.inputinv.connect('toggled', self.invert)
 
 
 
@@ -160,9 +161,9 @@ class ControllerBox(Gtk.Box):
 
 
 
-		self.leftbox.add(self.endpointbutbox)
-		self.leftbox.add(self.endpointhatbox)
-		self.leftbox.add(self.endpointaxisbox)
+		self.leftbox.add(self.endpoint_button_box)
+		self.leftbox.add(self.endpoint_hat_box)
+		self.leftbox.add(self.endpoint_axis_box)
 		
 		self.scrollbuttonwindow.add(self.butbox)
 		
@@ -188,9 +189,9 @@ class ControllerBox(Gtk.Box):
 		self.butbox.updatebut()
 
 	def update_endpoints(self, widget, event):
-		endbut = self.endpointbutbox
-		endaxis = self.endpointaxisbox
-		endhat = self.endpointhatbox
+		endbut = self.endpoint_button_box
+		endaxis = self.endpoint_axis_box
+		endhat = self.endpoint_hat_box
 
 
 
@@ -208,9 +209,9 @@ class ControllerBox(Gtk.Box):
 		
 
 	def input_changed(self, widget):
-		endbut = self.endpointbutbox
-		endaxis = self.endpointaxisbox
-		endhat = self.endpointhatbox
+		endbut = self.endpoint_button_box
+		endaxis = self.endpoint_axis_box
+		endhat = self.endpoint_hat_box
 
 		#button
 		if widget is endbut.inputcombo:
@@ -238,8 +239,8 @@ class ControllerBox(Gtk.Box):
 
 	
 	def invert(self, widget):
-		endaxis = self.endpointaxisbox
-		endhat = self.endpointhatbox
+		endaxis = self.endpoint_axis_box
+		endhat = self.endpoint_hat_box
 
 		if widget is endaxis.inputinv:
 			if endaxis.inputinv.get_active() == True:
@@ -259,23 +260,22 @@ class ControllerBox(Gtk.Box):
 	def map(self, widget):
 		self.butbox.joystickid = self.contcombo.get_active()
 		self.bytebox.joystickid = self.contcombo.get_active()
-		self.butbox.map2()
+		self.butbox.map()
 
-		self.endpointbutbox.attr = self.butbox.buttonattr
-		self.endpointaxisbox.attr = self.butbox.axisattr
-		self.endpointhatbox.attr = self.butbox.hatattr
+		self.endpoint_button_box.attr = self.butbox.buttonattr
+		self.endpoint_axis_box.attr = self.butbox.axisattr
+		self.endpoint_hat_box.attr = self.butbox.hatattr
 		
-		self.endpointbutbox.joystickid = self.contcombo.get_active()
-		self.endpointaxisbox.joystickid = self.contcombo.get_active()
-		self.endpointhatbox.joystickid = self.contcombo.get_active()
+		self.endpoint_button_box.joystickid = self.contcombo.get_active()
+		self.endpoint_axis_box.joystickid = self.contcombo.get_active()
+		self.endpoint_hat_box.joystickid = self.contcombo.get_active()
 
-		self.endpointbutbox.map()
-		self.endpointaxisbox.map()
-		self.endpointhatbox.map()
+		self.endpoint_button_box.map()
+		self.endpoint_axis_box.map()
+		self.endpoint_hat_box.map()
 
-		self.bytebox.map_axis()
-		self.bytebox.map_button()
-		self.bytebox.map_hat()
+		self.bytebox.map_transmitbyte_box()
+
 
 		pygame.joystick.init()
 		self.joystick2 = pygame.joystick.Joystick(widget.get_active())
@@ -324,7 +324,7 @@ class ButtonBox(Gtk.Box):
 
 			self.buttonbox.insert(j, Gtk.Box(orientation = 'vertical'))
 			for i in range(joy.get_numbuttons()):
-				self.buttonattr[j].insert(i, structs.ButtonAttributes(name = str(i)))
+				self.buttonattr[j].insert(i, controllerattributes.ButtonAttributes(name = str(i)))
 				self.buttonbox[j].add(self.buttonattr[j][i].box)
 
 
@@ -335,7 +335,7 @@ class ButtonBox(Gtk.Box):
 
 			self.axisbox.insert(j, Gtk.Box(orientation = 'vertical'))
 			for i in range(joy.get_numaxes()):
-				self.axisattr[j].insert(i, structs.AxisAttributes(name = str(i)))	
+				self.axisattr[j].insert(i, controllerattributes.AxisAttributes(name = str(i)))	
 				self.axisbox[j].add(self.axisattr[j][i].box)
 
 
@@ -346,13 +346,13 @@ class ButtonBox(Gtk.Box):
 
 			self.hatbox.insert(j, Gtk.Box(orientation = 'vertical'))
 			for i in range(joy.get_numhats()+1):
-				self.hatattr[j].insert(i, structs.HatAttributes(name = str(i)))
+				self.hatattr[j].insert(i, controllerattributes.HatAttributes(name = str(i)))
 				self.hatbox[j].add(self.hatattr[j][i].box)
 
 
 
 
-	def map2(self):
+	def map(self):
 
 		self.show_all()
 		
@@ -483,8 +483,11 @@ class ByteBox(Gtk.Box):
 		self.headerbox.set_margin_left(5)
 		self.headerbox.set_margin_bottom(15)
 		self.typelabel = Gtk.Label("TYPE: ")
-		self.typebox = Gtk.ComboBoxText()
-		self.typebox.set_size_request(275,0)
+		self.typebox_combo = Gtk.ComboBoxText()
+		self.typebox_combo.set_size_request(100,0)
+		
+		self.num_bytes_combo = Gtk.ComboBoxText()
+		self.num_bytes_combo.set_size_request(50,0)
 		
 		self.typeadd = Gtk.Button(label = 'ADD')
 
@@ -497,64 +500,66 @@ class ByteBox(Gtk.Box):
 		self.joystickid = None
 		
 	#byte types
-		self.typebox.insert_text(0, "Constant Value: 8 Bit")
-		self.typebox.insert_text(1, "Constant + Axis + Button: 8 Bit")
-		self.typebox.insert_text(2, "Constant + Axis + Button: 16 Bit")
-		self.typebox.insert_text(3, "Constant + Axis + Hat: 8 Bit")
-		self.typebox.insert_text(4, "Constant + Axis + Hat: 16 Bit")
-		self.typebox.set_active(0)
+		self.typebox_combo.insert_text(0, "Constant")
+		self.typebox_combo.insert_text(1, "Axis + Button")
+		self.typebox_combo.insert_text(2, "Axis + Hat")
 
+		self.typebox_combo.set_active(0)
+
+		self.num_bytes_combo.insert_text(0, "1 Byte")
+		self.num_bytes_combo.insert_text(1, "2 Byte")
+		self.num_bytes_combo.set_active(0)
 
 		self.headerbox.add(self.typelabel)
-		self.headerbox.add(self.typebox)
+		self.headerbox.add(self.typebox_combo)
+		self.headerbox.add(self.num_bytes_combo)
 		self.headerbox.add(self.typeadd)
 		self.add(self.headerbox)
 
 
 
-	def map_axis(self):
+	def map_transmitbyte_box(self):
 		for val in self.entryarray:
-			if hasattr(val, 'axiscombo'):
-				val.axiscombo.remove_all()
+			if hasattr(val, 'axis_combo'):
+				val.axis_combo.remove_all()
 
 				if self.joystickid != -1:
 					if self.joystickid != None:
 
 						for i in range(pygame.joystick.Joystick(self.joystickid).get_numaxes()):
-							val.axiscombo.insert_text(i, str(i))
-						val.axiscombo.insert_text(-1, ' ')
+							val.axis_combo.insert_text(i, str(i))
+						val.axis_combo.insert_text(-1, ' ')
 
 
 
-	def map_button(self):
-		for val in self.entryarray:
-			if hasattr(val, 'buttonlab'):
-				val.buttoncombo0.remove_all()
-				val.buttoncombo1.remove_all()
+			if hasattr(val, 'button_label'):
+				val.button0_combo.remove_all()
+				val.button1_combo.remove_all()
+				
 				if self.joystickid != -1:
 					if self.joystickid != None:
 
 						for i in range(pygame.joystick.Joystick(self.joystickid).get_numbuttons()):
-							val.buttoncombo0.insert_text(i, str(i))
-							val.buttoncombo1.insert_text(i, str(i))
-						val.buttoncombo0.insert_text(-1, ' ')
-						val.buttoncombo1.insert_text(-1, ' ')
+							val.button0_combo.insert_text(i, str(i))
+							val.button1_combo.insert_text(i, str(i))
+						val.button0_combo.insert_text(-1, ' ')
+						val.button1_combo.insert_text(-1, ' ')
 
 
 
-	def map_hat(self):
-		for val in self.entryarray:
-			if hasattr(val, 'hatlabel'):
-				val.hatcombo.remove_all()
+			if hasattr(val, 'hat_label'):
+				val.hat_combo.remove_all()
 
 				if self.joystickid != -1:
 					if self.joystickid != None:
 
 						for i in range(pygame.joystick.Joystick(self.joystickid).get_numhats()+1):
-							val.hatcombo.insert_text(i, str(i))
-						val.hatcombo.insert_text(-1, ' ')
+							val.hat_combo.insert_text(i, str(i))
+						val.hat_combo.insert_text(-1, ' ')
 
 
+
+#adds byte to be transmitted to gui
 
 	def add_byte(self, widget):
 		byteindex = 0
@@ -562,121 +567,98 @@ class ByteBox(Gtk.Box):
 			byteindex += byte.numbytes
 			
 
-		if self.typebox.get_active() == 0:
-			
-			self.entryarray.append(bytetype.ConstantValue(byteindex))
-			currentbyte = self.entryarray[len(self.entryarray)-1]
-
+		if self.typebox_combo.get_active() == 0:
+				
+				
+			currentbyte = transmitbyte.TransmitByte('Constant', (self.num_bytes_combo.get_active() + 1), byteindex)
+			self.entryarray.append(currentbyte)
 			self.add(currentbyte)
 			
-			currentbyte.byteentry.connect('focus-out-event', self.update_entry)
+	#update on focus-out
+			currentbyte.byte_entry.connect('focus-out-event', self.update_entry)
 	
 			
 
-		if self.typebox.get_active() == 1:
-			self.entryarray.append(bytetype.ConstantAxis(byteindex))
-			currentbyte = self.entryarray[len(self.entryarray) - 1]
+		if self.typebox_combo.get_active() == 1:
+	
+			currentbyte = transmitbyte.TransmitByte('Button', (self.num_bytes_combo.get_active() + 1), byteindex)
+			self.entryarray.append(currentbyte)
 			
-			currentbyte.byteentry.connect('focus-out-event', self.update_entry)
-			currentbyte.axiscombo.connect('changed', self.update)
-			currentbyte.buttoncombo0.connect('changed', self.update)
-			currentbyte.buttoncombo1.connect('changed', self.update)
+			
+			currentbyte.byte_entry.connect('focus-out-event', self.update_entry)
+			currentbyte.axis_combo.connect('changed', self.update_transmitbyte_arguments)
+			currentbyte.button0_combo.connect('changed', self.update_transmitbyte_arguments)
+			currentbyte.button1_combo.connect('changed', self.update_transmitbyte_arguments)
 	
 			self.add(currentbyte)
 
 		
 
-		if self.typebox.get_active() == 2:
+		if self.typebox_combo.get_active() == 2:
 
-			self.entryarray.append(bytetype.ConstantAxis2B(byteindex))
-			currentbyte = self.entryarray[len(self.entryarray)-1]
+			currentbyte = transmitbyte.TransmitByte('Hat', (self.num_bytes_combo.get_active() + 1), byteindex)
+			self.entryarray.append(currentbyte)
 
-			currentbyte.byteentry.connect('focus-out-event', self.update_entry)
-			currentbyte.axiscombo.connect('changed', self.update)
-			currentbyte.buttoncombo0.connect('changed', self.update)
-			currentbyte.buttoncombo1.connect('changed', self.update)
-
+			currentbyte.byte_entry.connect('focus-out-event', self.update_entry)
+			currentbyte.axis_combo.connect('changed', self.update_transmitbyte_arguments)
+			currentbyte.hat_combo.connect('changed', self.update_transmitbyte_arguments)
+		
 			self.add(currentbyte)
 			
 
-
-		if self.typebox.get_active() == 3:
-
-			self.entryarray.append(bytetype.ConstantAxisHat(byteindex))
-			currentbyte = self.entryarray[len(self.entryarray)-1]
-
-			currentbyte.byteentry.connect('focus-out-event', self.update_entry)
-			currentbyte.axiscombo.connect('changed', self.update)
-			currentbyte.hatcombo.connect('changed', self.update)
-
-			self.add(currentbyte)
-		
-		
-
-		if self.typebox.get_active() == 4:
-
-			self.entryarray.append(bytetype.ConstantAxisHat2B(byteindex))
-			currentbyte = self.entryarray[len(self.entryarray)-1]
-
-			currentbyte.byteentry.connect('focus-out-event', self.update_entry)
-			currentbyte.axiscombo.connect('changed', self.update)
-			currentbyte.hatcombo.connect('changed', self.update)
-
-			self.add(currentbyte)
 			
 		
-		self.map_axis()
-		self.map_button()
-		self.map_hat()
+		self.map_transmitbyte_box()
+
 
 
 
 	def update_entry(self, widget, event):
 		for byte in self.entryarray:
-			if widget is byte.byteentry:
+			if widget is byte.byte_entry:
 				try:
-					byte.byteval = int(byte.byteentry.get_text(), 0)
+					byte.byteval = int(byte.byte_entry.get_text(), 0)
 					
 				except:
 					byte.byteval = 0
-					print('invalid')
 
 
 
-	def update(self, widget):
+
+	def update_transmitbyte_arguments(self, widget):
+	
 		for byte in self.entryarray:
-			if hasattr(byte, 'axiscombo'):
-				if widget is byte.axiscombo:
-					if byte.axiscombo.get_active_text() == ' ':
+			if hasattr(byte, 'axis_combo'):
+				if widget is byte.axis_combo:
+					if byte.axis_combo.get_active_text() == ' ':
 						byte.axis = None
 					else:				
-						byte.axis = byte.axiscombo.get_active()
+						byte.axis = byte.axis_combo.get_active()
 
 
-		for byte in self.entryarray:
 			if hasattr(byte, 'button0'):
-				if widget is byte.buttoncombo0:
-					if byte.buttoncombo0.get_active_text() == ' ':
+				if widget is byte.button0_combo:
+					if byte.button0_combo.get_active_text() == ' ':
 						byte.button0 = None
 					else:		
-						byte.button0 = byte.buttoncombo0.get_active()
+						byte.button0 = byte.button0_combo.get_active()
 
-		for byte in self.entryarray:
+		
 			if hasattr(byte, 'button1'):
-				if widget is byte.buttoncombo1:
-					if byte.buttoncombo1.get_active_text() == ' ':
+				if widget is byte.button1_combo:
+					if byte.button1_combo.get_active_text() == ' ':
 						byte.button1 = None
 					else:		
-						byte.button1 = byte.buttoncombo1.get_active()
+						byte.button1 = byte.button1_combo.get_active()
 
 
-		for byte in self.entryarray:
-			if hasattr(byte, 'hat'):
-				if widget is byte.hatcombo:
-					if byte.hatcombo.get_active_text() == ' ':
+		
+			if hasattr(byte, 'hat_combo'):
+				if widget is byte.hat_combo:
+					if byte.hat_combo.get_active_text() == ' ':
 						byte.hat = None
 					else:		
-						byte.hat = byte.hatcombo.get_active()
+						byte.hat = byte.hat_combo.get_active()
 		
 		
 

@@ -24,6 +24,7 @@ controllerbox = mainwin.appmenu.controllerwin.controllerbox
 values = mainwin.values
 port = mainwin.serialportbox.useport
 bytes = []
+
 def app_main():
 
 
@@ -59,8 +60,7 @@ def background():
 
 		pygame.event.pump()
 		
-	#	print(joystickinuse.get_axis(1))
-#main code
+
 
 		if joystickinuse.get_id() == joystickid:
 			buttonattr = contbox.butbox.buttonattr			
@@ -101,21 +101,52 @@ def background():
 
 				if len(values) < (i + 1):
 					values.append(0)
+					
 				
-
+		
+				#initial value
+				values[i] = entryarray[i].byteval
+				
+				
+				
+				
 				if hasattr(entryarray[i], 'button0'):
+					pastcount = entryarray[i].button_total
+					
 					if entryarray[i].button0 != None:
-						entryarray[i].totalcount += buttonattr[joystickinuse.get_id()][entryarray[i].button0].buttoncnt
+						
+						entryarray[i].button_total += buttonattr[joystickinuse.get_id()][entryarray[i].button0].buttoncnt
 						buttonattr[joystickinuse.get_id()][entryarray[i].button0].buttoncnt = 0
 						
+					
 					if entryarray[i].button1 != None:
-						entryarray[i].totalcount += buttonattr[joystickinuse.get_id()][entryarray[i].button1].buttoncnt
+					
+						entryarray[i].button_total += buttonattr[joystickinuse.get_id()][entryarray[i].button1].buttoncnt
 						buttonattr[joystickinuse.get_id()][entryarray[i].button1].buttoncnt = 0
+						
 				
-
+					#add buttontotal
+					if ((values[i] + entryarray[i].button_total) > entryarray[i].maxval):
+						None
+				
+					#add stuff here tomorrow **********************************************************************
+					
+					values[i] += entryarray[i].button_total
+				
+				
+						
+				if ((values[i]) > entryarray[i].maxval):
+					entryarray[i].buttontotal = pastcount
+				
+				
+				
 				if hasattr(entryarray[i], 'hat'):
 					if entryarray[i].hat != None:
-						entryarray[i].totalcount = hatattr[joystickinuse.get_id()][entryarray[i].hat].buttoncnt 
+						entryarray[i].hattotal = hatattr[joystickinuse.get_id()][entryarray[i].hat].buttoncnt 
+						
+						
+					#add hattotal
+					values[i] += entryarray[i].hattotal
 				
 
 				if hasattr(entryarray[i], 'axis'):
@@ -124,9 +155,13 @@ def background():
 							entryarray[i].axistotal += axisattr[joystickinuse.get_id()][entryarray[i].axis].value
 						else:
 							entryarray[i].axistotal = axisattr[joystickinuse.get_id()][entryarray[i].axis].value
-
-				values[i] = int(entryarray[i].totalcount + entryarray[i].axistotal + entryarray[i].byteval)
-			
+							
+							
+					values[i] += entryarray[i].axistotal
+				
+				
+				values[i] = int(values[i])
+					
 
 
 			
@@ -170,10 +205,6 @@ def update_gui():
 				val[1].set_text(str(values[i]))
 
 
-	#count gui update
-
-		
-
 
 	return True
 
@@ -186,11 +217,18 @@ def serialbg():
 	for i, byt in enumerate(values):
 
 		if entryarray[i].numbytes == 1:
-			transmit.append(byt)
+			if byt > 0:
+				transmit.append(byt)
+			else:
+				transmit.append(0)
+
 
 		elif entryarray[i].numbytes == 2:
-			transmit.append((byt >> 8) & 0xff)
-			transmit.append(byt & 0xff)
+			if byt > 0:
+				transmit.append((byt >> 8) & 0xff)
+				transmit.append(byt & 0xff)
+			else:
+				transmit.append(0)
 	
 	if port.is_open:
 			

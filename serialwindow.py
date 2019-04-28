@@ -34,17 +34,17 @@ class SerialWindowBox(Gtk.Box):
 class SerialWindow(Gtk.Window):
 
 	
-	def __init__(self, title="Serial Port Settings"):
+	def __init__(self):
 		
-		Gtk.Window.__init__(self)
-		self.set_default_size(200,200)
+		Gtk.Window.__init__(self, title="Serial Port Settings")
+		self.set_default_size(275,200)
 		serialbox = Gtk.Box(orientation = 'vertical', spacing = 10)
 
 		self.row1 = SerialWindowBox()
 		self.row1.label.set_text("Baudrate:")
 		for x, rate in BAUDRATE:
 			self.row1.combo.append(x, rate)
-		self.row1.combo.set_active_id('0')
+		self.row1.combo.set_active_id('8')
 		serialbox.add(self.row1)
 
 		self.row2 = SerialWindowBox()	
