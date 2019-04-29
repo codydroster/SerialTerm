@@ -1,6 +1,6 @@
 ### Requirements:
 
-Python 3  
+Python3  
 pygame  
 pyserial  
 pygtk  
