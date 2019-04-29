@@ -1,7 +1,7 @@
 ## UARTGamepad
 
 UARTGamepad takes input from a USB or Bluetooth game controller, and outputs it to a serial port.
-#### Requirements
+#### Requirements:
 
 ```
 Python3  
@@ -10,7 +10,7 @@ pyserial
 pygtk  
 ```
 
-#### Run
+#### Run:
 
 ```
 $ python3 main.py
