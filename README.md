@@ -1,4 +1,4 @@
-## Requires:
+### Requirements:
 
 Python 3  
 pygame  
