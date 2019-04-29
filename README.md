@@ -1,6 +1,6 @@
 ## Requires:
 
-Python 3
-pygame
-pyserial
-pygtk
+Python 3  
+pygame  
+pyserial  
+pygtk  
