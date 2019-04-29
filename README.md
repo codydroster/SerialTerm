@@ -10,7 +10,7 @@ pyserial
 pygtk  
 ```
 
-#### Run:
+#### Run
 
 ```
 $ python3 main.py
