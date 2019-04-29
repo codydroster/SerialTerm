@@ -15,3 +15,6 @@ pygtk
 ```
 $ python3 main.py
 ```
+
+
+![settings](https://user-images.githubusercontent.com/6474167/56872638-11e89200-69f1-11e9-87c4-584c33aaf35d.png)
