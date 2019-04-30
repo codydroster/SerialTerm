@@ -1,7 +1,6 @@
 import gi
 import serial
 import serial.tools.list_ports
-import time
 import pygame
 
 import controllerwindow
@@ -71,7 +70,7 @@ class MainWindow(Gtk.Window):
 	def delete_serial(self, window, event):
 		serialwin = self.appmenu.serialwin
 		serialinfo = self.serialportbox.serialinfo
-		serialinfolabel = self.serialportbox.serialinfolabel
+		serialinfo_label = self.serialportbox.serialinfo_label
 
 
 
@@ -81,7 +80,7 @@ class MainWindow(Gtk.Window):
 		serialinfo[3] = serialwin.row4.combo.get_active_text()
 
 		
-		serialinfolabel.set_text(serialinfo[0] + ', '
+		serialinfo_label.set_text(serialinfo[0] + ', '
 					+ serialinfo[1] 
 					+ '-' + serialinfo[2][0] + '-'
 					+ serialinfo[3])
@@ -161,18 +160,20 @@ class SerialMainBox(Gtk.Box):
 		Gtk.Box.__init__(self, spacing = 10)
 		
 		#initialize
-		seriallabel = Gtk.Label(" Serial Port:")
-		info = Gtk.Label("Info:")
-
+		serial_label = Gtk.Label()
+		serial_label.set_margin_left(6)
+		serial_label.set_markup("<b>" 'SerialPort:'  "</b>")
+		info_label = Gtk.Label("Info:")
+		info_label.set_markup("<b>" 'Info:'  "</b>")
 
 		self.serialPortCombo = Gtk.ComboBoxText()
 		self.scan = Gtk.Button(label = 'scan')
 		self.opendevice = Gtk.Button(label = "Connect")
 		self.edit = Gtk.Entry()
-		self.serialinfolabel = Gtk.Label()
+		self.serialinfo_label = Gtk.Label()
 		
 		self.serialinfo = ['115200', '8', 'None', '1']
-		self.serialinfolabel.set_text(self.serialinfo[0] + ', '
+		self.serialinfo_label.set_text(self.serialinfo[0] + ', '
 						+ self.serialinfo[1] 
 						+ '-' + self.serialinfo[2][0] + '-'
 						+ self.serialinfo[3])
@@ -194,12 +195,12 @@ class SerialMainBox(Gtk.Box):
 		
 		
 		#add widgets in order
-		self.add(seriallabel)
+		self.add(serial_label)
 		self.add(self.serialPortCombo)
 		self.add(self.scan)
 		self.add(self.opendevice)		
-		self.add(info)
-		self.add(self.serialinfolabel)
+		self.add(info_label)
+		self.add(self.serialinfo_label)
 
 
 	def pop_down(self, widget):
@@ -246,7 +247,8 @@ class ScrolledTerm(Gtk.Box):
 
 	
 		
-		self.transmitctrl_label = Gtk.Label('CONTROLLER TRANSMIT:')
+		self.transmitctrl_label = Gtk.Label()
+		self.transmitctrl_label.set_markup("<b>" 'CONTROLLER TRANSMIT:'  "</b>")
 		self.transmitctrl_label.set_margin_left(50)
 		
 		self.transmitctrl_switch = Gtk.Switch()
@@ -384,11 +386,14 @@ class AppMenuBar(Gtk.MenuBar):
 	def clear_val(self, widget):
 		controllerbox = self.controllerwin.controllerbox
 		for value in controllerbox.bytebox.entryarray:
-			if hasattr(value, 'axistotal'):
-				value.axistotal = 0
+			if hasattr(value, 'axis_total'):
+				value.axis_total = 0
 			
-			if hasattr(value, 'totalcount'):
-				value.totalcount = 0
+			if hasattr(value, 'button_total'):
+				value.button_total = 0
+				
+			if hasattr(value, 'hat_total'):
+				value.hat_total = 0
 	
 	
 	

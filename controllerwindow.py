@@ -20,7 +20,7 @@ class ControllerWindow(Gtk.Window):
 
 		
 
-		sep = Gtk.VSeparator()
+
 		self.controllerbox = ControllerBox()
 
 
@@ -126,8 +126,8 @@ class ControllerBox(Gtk.Box):
 
 
 
-		sep = Gtk.Separator()
-		sep2 = Gtk.Separator()
+		bytebox_sep = Gtk.Separator()
+		endpoint_sep = Gtk.Separator()
 		secbox = Gtk.Box(orientation = 'horizontal')
 
 
@@ -169,9 +169,9 @@ class ControllerBox(Gtk.Box):
 		
 
 		secbox.add(self.leftbox)
-		secbox.add(sep2)
+		secbox.add(endpoint_sep)
 		secbox.add(self.scrollbuttonwindow)
-		secbox.add(sep)
+		secbox.add(bytebox_sep)
 		secbox.add(self.bytebox)
 		self.add(secbox)
 
@@ -472,7 +472,7 @@ class EndPointBox(Gtk.Box):
 
 
 
-
+#configures bytes to be sent to serial port
 
 class ByteBox(Gtk.Box):
 
@@ -503,6 +503,7 @@ class ByteBox(Gtk.Box):
 		self.typebox_combo.insert_text(0, "Constant")
 		self.typebox_combo.insert_text(1, "Axis + Button")
 		self.typebox_combo.insert_text(2, "Axis + Hat")
+		self.typebox_combo.insert_text(3, "Button Position")
 
 		self.typebox_combo.set_active(0)
 
@@ -517,45 +518,38 @@ class ByteBox(Gtk.Box):
 		self.add(self.headerbox)
 
 
+#maps attributes of controller to ComboBoxes for transmit byte.
 
 	def map_transmitbyte_box(self):
 		for val in self.entryarray:
 			if hasattr(val, 'axis_combo'):
 				val.axis_combo.remove_all()
-
-				if self.joystickid != -1:
-					if self.joystickid != None:
-
-						for i in range(pygame.joystick.Joystick(self.joystickid).get_numaxes()):
-							val.axis_combo.insert_text(i, str(i))
-						val.axis_combo.insert_text(-1, ' ')
+				if self.joystickid != -1 and self.joystickid != None:
+					for i in range(pygame.joystick.Joystick(self.joystickid).get_numaxes()):
+						val.axis_combo.insert_text(i, str(i))
+					val.axis_combo.insert_text(-1, ' ')
 
 
 
 			if hasattr(val, 'button_label'):
 				val.button0_combo.remove_all()
 				val.button1_combo.remove_all()
-				
-				if self.joystickid != -1:
-					if self.joystickid != None:
-
-						for i in range(pygame.joystick.Joystick(self.joystickid).get_numbuttons()):
-							val.button0_combo.insert_text(i, str(i))
-							val.button1_combo.insert_text(i, str(i))
-						val.button0_combo.insert_text(-1, ' ')
-						val.button1_combo.insert_text(-1, ' ')
+				if self.joystickid != -1 and self.joystickid != None:
+				#	if self.joystickid != None:
+					for i in range(pygame.joystick.Joystick(self.joystickid).get_numbuttons()):
+						val.button0_combo.insert_text(i, str(i))
+						val.button1_combo.insert_text(i, str(i))
+					val.button0_combo.insert_text(-1, ' ')
+					val.button1_combo.insert_text(-1, ' ')
 
 
 
 			if hasattr(val, 'hat_label'):
 				val.hat_combo.remove_all()
-
-				if self.joystickid != -1:
-					if self.joystickid != None:
-
-						for i in range(pygame.joystick.Joystick(self.joystickid).get_numhats()+1):
-							val.hat_combo.insert_text(i, str(i))
-						val.hat_combo.insert_text(-1, ' ')
+				if self.joystickid != -1 and self.joystickid != None:
+					for i in range(pygame.joystick.Joystick(self.joystickid).get_numhats()+1):
+						val.hat_combo.insert_text(i, str(i))
+					val.hat_combo.insert_text(-1, ' ')
 
 
 
@@ -605,7 +599,13 @@ class ByteBox(Gtk.Box):
 		
 			self.add(currentbyte)
 			
-
+			
+		if self.typebox_combo.get_active() == 3:
+		
+			currentbyte = transmitbyte.ButtonByte(byteindex)
+			self.entryarray.append(currentbyte)
+			
+			self.add(currentbyte)
 			
 		
 		self.map_transmitbyte_box()

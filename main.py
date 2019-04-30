@@ -88,8 +88,8 @@ def background():
 				hatattr[joystickinuse.get_id()][i].rawvalue = valuex
 				hatattr[joystickinuse.get_id()][i+1].rawvalue = valuey
 
-				hatattr[joystickinuse.get_id()][i].buttoncnt += hatattr[joystickinuse.get_id()][i].get_value()
-				hatattr[joystickinuse.get_id()][i+1].buttoncnt += hatattr[joystickinuse.get_id()][i+1].get_value()
+			#	hatattr[joystickinuse.get_id()][i].buttoncnt += hatattr[joystickinuse.get_id()][i].get_value()
+			#	hatattr[joystickinuse.get_id()][i+1].buttoncnt += hatattr[joystickinuse.get_id()][i+1].get_value()
 
 	
 
@@ -112,52 +112,35 @@ def background():
 				
 				if hasattr(entryarray[i], 'button0'):
 					pastcount = entryarray[i].button_total
-					
 					if entryarray[i].button0 != None:
-						
-						entryarray[i].button_total += buttonattr[joystickinuse.get_id()][entryarray[i].button0].buttoncnt
-						buttonattr[joystickinuse.get_id()][entryarray[i].button0].buttoncnt = 0
-						
-					
+						entryarray[i].button_total += buttonattr[joystickinuse.get_id()][entryarray[i].button0].value
 					if entryarray[i].button1 != None:
-					
-						entryarray[i].button_total += buttonattr[joystickinuse.get_id()][entryarray[i].button1].buttoncnt
-						buttonattr[joystickinuse.get_id()][entryarray[i].button1].buttoncnt = 0
-						
-				
+						entryarray[i].button_total += buttonattr[joystickinuse.get_id()][entryarray[i].button1].value
 					#add buttontotal
-					if ((values[i] + entryarray[i].button_total) > entryarray[i].maxval):
-						None
-				
-					#add stuff here tomorrow **********************************************************************
-					
 					values[i] += entryarray[i].button_total
-				
-				
-						
-				if ((values[i]) > entryarray[i].maxval):
-					entryarray[i].buttontotal = pastcount
-				
-				
-				
+
 				if hasattr(entryarray[i], 'hat'):
 					if entryarray[i].hat != None:
-						entryarray[i].hattotal = hatattr[joystickinuse.get_id()][entryarray[i].hat].buttoncnt 
-						
-						
+						entryarray[i].hat_total += hatattr[joystickinuse.get_id()][entryarray[i].hat].value 		
 					#add hattotal
-					values[i] += entryarray[i].hattotal
+					values[i] += entryarray[i].hat_total
 				
-
 				if hasattr(entryarray[i], 'axis'):
 					if entryarray[i].axis !=None:
 						if axisattr[joystickinuse.get_id()][entryarray[i].axis].sumaxisbool == True:
-							entryarray[i].axistotal += axisattr[joystickinuse.get_id()][entryarray[i].axis].value
+							entryarray[i].axis_total += axisattr[joystickinuse.get_id()][entryarray[i].axis].value
 						else:
-							entryarray[i].axistotal = axisattr[joystickinuse.get_id()][entryarray[i].axis].value
-							
-							
-					values[i] += entryarray[i].axistotal
+							entryarray[i].axis_total = axisattr[joystickinuse.get_id()][entryarray[i].axis].value
+					#add axistotal		
+					values[i] += entryarray[i].axis_total
+					
+					
+					
+				if values[i] > entryarray[i].maxval:
+					values[i] = entryarray[i].maxval
+					
+				if values[i] < 0:
+					values[i] = 0
 				
 				
 				values[i] = int(values[i])
@@ -230,9 +213,12 @@ def serialbg():
 			else:
 				transmit.append(0)
 	
-	if port.is_open:
+	
+#If CONTROLLER TRANSMIT switch enabled	
+	if mainwin.scrolled_term.transmitctrl_switch.get_active():
+		if port.is_open:
 			
-		port.write(transmit)
+			port.write(transmit)
 				
 
 	return True

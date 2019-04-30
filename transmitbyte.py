@@ -26,22 +26,26 @@ class TransmitByte(Gtk.Box):
 		self.boxbot = Gtk.Box(orientation = 'horizontal', spacing = 1)
 		
 		self.numbytes = b_num
+		
 		self.byteval = 0
+
+					
+		self.byte_entry = Gtk.Entry()
+		self.byte_entry.set_width_chars(6)
+		
 		
 		if self.numbytes == 1:
 			self.bytenum_label = Gtk.Label('B ' + str(index) + ': ')
 			self.bytenum_label.set_markup("<b>" 'B ' + str(index) + ': ' "</b>")
 			self.maxval = 0xff
+			self.byte_entry.set_placeholder_text('0x00')
 			
 		elif self.numbytes == 2:
 			self.bytenum_label = Gtk.Label('B ' + str(index) + '-' + str(index + 1) + ': ')
 			self.bytenum_label.set_markup("<b>" 'B ' + str(index) + '-' + str(index + 1) + ': ' "</b>")
 			self.maxval = 0xffff
-			
-			
-		self.byte_entry = Gtk.Entry()
-		self.byte_entry.set_placeholder_text('0x00')
-		self.byte_entry.set_width_chars(6)
+			self.byte_entry.set_placeholder_text('0x0000')
+
 			
 			
 				
@@ -91,6 +95,7 @@ class TransmitByte(Gtk.Box):
 			self.hat_combo.set_size_request(40,0)
 			
 			self.hat_total = 0
+			self.hat = None
 		
 		
 		#box add
@@ -107,18 +112,46 @@ class TransmitByte(Gtk.Box):
 		
 class ButtonByte(Gtk.Box):
 
-		def __init__(self, b_type, b_num, index):
+		def __init__(self, index):
 			Gtk.Box.__init__(self, orientation = 'vertical', spacing = 2)
+			self.set_margin_left(5)
+			self.set_margin_bottom(10)
 		
 		
+			self.boxtop = Gtk.Box(orientation = 'horizontal', spacing = 5)
+			self.boxbot = Gtk.Box(orientation = 'horizontal', spacing = 1)
 		
 		
+			self.numbytes = 1
 		
+			self.byte_entry = Gtk.Entry()
+			self.byte_entry.set_placeholder_text('01234567')
+			self.byte_entry.set_width_chars(8)
+			self.byte_entry.set_max_width_chars(8)
+			self.byte_entry.set_max_length(8)
 		
-		
-		
-		
-		
+			
+
+			self.bytenum_label = Gtk.Label('B ' + str(index) + ': ')
+			self.bytenum_label.set_markup("<b>" 'B ' + str(index) + ': ' "</b>")
+			self.maxval = 0xff
+
+			
+			
+			self.boxtop.add(self.bytenum_label)
+			self.boxbot.add(self.byte_entry)
+			
+			self.add(self.boxtop)
+			self.add(self.boxbot)
+			
+			self.show_all()
+			
+			
+			
+			
+			
+			
+			
 		
 		
 
