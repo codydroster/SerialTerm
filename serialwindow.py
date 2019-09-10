@@ -17,7 +17,7 @@ STOPBITS = ('0','1'), ('1','1.5'), ('2','2')
 
 class SerialWindowBox(Gtk.Box):
 	
-	def __init__(self):	
+	def __init__(self):
 		Gtk.Box.__init__(self, orientation='horizontal', spacing=10)
 
 		self.combo = Gtk.ComboBoxText()
@@ -26,16 +26,16 @@ class SerialWindowBox(Gtk.Box):
 		self.add(self.label)
 		self.label.set_width_chars(10)
 		self.label.xpad = 2
-	
+
 
 		self.add(self.combo)
 
 
 class SerialWindow(Gtk.Window):
 
-	
+
 	def __init__(self):
-		
+
 		Gtk.Window.__init__(self, title="Serial Port Settings")
 		self.set_default_size(275,200)
 		serialbox = Gtk.Box(orientation = 'vertical', spacing = 10)
@@ -47,26 +47,26 @@ class SerialWindow(Gtk.Window):
 		self.row1.combo.set_active_id('8')
 		serialbox.add(self.row1)
 
-		self.row2 = SerialWindowBox()	
+		self.row2 = SerialWindowBox()
 		self.row2.label.set_text("Data Bits:")
-		for x, bits in DATABITS:		
+		for x, bits in DATABITS:
 			self.row2.combo.append(x, bits)
 		self.row2.combo.set_active_id('3')
 		serialbox.add(self.row2)
 
 		self.row3 = SerialWindowBox()
 		self.row3.label.set_text("Parity:     ")
-		for x, par in PARITY:		
+		for x, par in PARITY:
 			self.row3.combo.append(x, par)
 		self.row3.combo.set_active_id('0')
 		serialbox.add(self.row3)
 
 		self.row4 = SerialWindowBox()
 		self.row4.label.set_text("Stop Bits:")
-		for x, stop in STOPBITS:		
+		for x, stop in STOPBITS:
 			self.row4.combo.append(x, stop)
 		self.row4.combo.set_active_id('0')
 		serialbox.add(self.row4)
 
-		
+
 		self.add(serialbox)

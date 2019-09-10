@@ -13,13 +13,13 @@ from gi.repository import Gtk, Gdk
 #Gtk window subclass : main window
 class MainWindow(Gtk.Window):
 
-	
+
 
 	def __init__(self):
 		Gtk.Window.__init__(self, title="UART Gamepad")
 		self.set_default_size(800, 600)
 
-		
+
 		self.values = []
 
 
@@ -29,10 +29,10 @@ class MainWindow(Gtk.Window):
 
 
 		#menubar
-		self.appmenu = AppMenuBar()	
-	
-		
-		
+		self.appmenu = AppMenuBar()
+
+
+
 
 		#layout containers
 		self.mainbox = Gtk.Box(orientation='vertical', spacing = 6)
@@ -41,29 +41,33 @@ class MainWindow(Gtk.Window):
 		self.scrolled_term = ScrolledTerm()
 		self.bytevalbox = ByteValBox()
 
-		
+
 		#serial settings window
 		self.appmenu.controllerwin.connect("delete-event", self.delete_controller)
 		self.appmenu.serialwin.connect("delete-event", self.delete_serial)
 		self.serialportbox.opendevice.connect('clicked', self.open_serial)
 
 
-		
-		#layout: add to main window	
-		self.mainbox.add(self.appmenu)	
+		#send manual serial entry
+		self.scrolled_term.send_button.connect("clicked", self.send_serial_line)
+		self.scrolled_term.send_entry.connect("activate", self.send_serial_line)
+
+
+		#layout: add to main window
+		self.mainbox.add(self.appmenu)
 		self.add(self.mainbox)
 		self.mainbox.add(self.serialportbox)
 		self.mainbox.add(self.scrolled_term)
-				
-		#self.mainbox.add(self.sep)
-		
-		self.mainbox.add(self.joysticklabel)
-		
-	
-		self.mainbox.add(self.bytevalbox)
-		
 
-		
+		#self.mainbox.add(self.sep)
+
+		self.mainbox.add(self.joysticklabel)
+
+
+		self.mainbox.add(self.bytevalbox)
+
+
+
 		self.show_all()
 
 
@@ -79,14 +83,14 @@ class MainWindow(Gtk.Window):
 		serialinfo[2] = serialwin.row3.combo.get_active_text()
 		serialinfo[3] = serialwin.row4.combo.get_active_text()
 
-		
+
 		serialinfo_label.set_text(serialinfo[0] + ', '
-					+ serialinfo[1] 
+					+ serialinfo[1]
 					+ '-' + serialinfo[2][0] + '-'
 					+ serialinfo[3])
-		
+
 		serialwin.hide_on_delete()
-		
+
 
 
 		return True
@@ -94,29 +98,29 @@ class MainWindow(Gtk.Window):
 	def delete_controller(self, window, event):
 		controllerwin = self.appmenu.controllerwin
 
-		
+
 		if controllerwin.controllerbox.contcombo.get_active_text() != None:
 
 			self.joysticklabel.set_label(controllerwin.controllerbox.contcombo.get_active_text())
 		else:
 			self.joysticklabel.set_label("")
-		
+
 
 		controllerwin.hide_on_delete()
 		self.bytevalbox.entryarray = self.appmenu.controllerwin.controllerbox.bytebox.entryarray
 		self.bytevalbox.map()
-		
-		return True		
 
-	
+		return True
+
+
 	def open_serial(self, widget):
-		
+
 		tbuf = self.scrolled_term.term_text.get_buffer()
 
 		if self.serialportbox.opendevice.get_label() == "Connect":
 
 			serialinfo = self.serialportbox.serialinfo
-		
+
 			port = self.serialportbox.useport
 			port.__init__()
 			port.port = self.serialportbox.edit.get_text()
@@ -125,10 +129,10 @@ class MainWindow(Gtk.Window):
 			port.parity = serialinfo[2][0]
 			port.stopbits = int(serialinfo[3])
 
-			
 
-			try: 
-				self.serialportbox.useport.open()	
+
+			try:
+				self.serialportbox.useport.open()
 				self.scrolled_term.insert_text_term('Opened Successfully: ' + port.port)
 				self.scrolled_term.term_text.scroll_to_iter(tbuf.get_end_iter(), 0, False, 0, 0)
 				self.serialportbox.opendevice.set_label("Close")
@@ -139,26 +143,45 @@ class MainWindow(Gtk.Window):
 
 
 		elif self.serialportbox.opendevice.get_label() == "Close":
-			
+
 			try:
 				self.serialportbox.useport.close()
 				self.scrolled_term.insert_text_term('Closed Successfully')
 				self.serialportbox.opendevice.set_label("Connect")
 				self.scrolled_term.term_text.scroll_to_iter(tbuf.get_end_iter(), 0, False, 0, 0)
-			
+
 			except serial.SerialException as err:
 
 				self.scrolled_term.insert_text_term(format(err))
 
 
 
+	def send_serial_line(self, widget):
+		port = self.serialportbox.useport
+		entry = list(self.scrolled_term.send_entry.get_text())
+
+		if('0x' in "".join(entry)):
+			if (len(entry[2:]) == 1):
+				entry.insert(2, '0')
+
+			entry = "".join(entry)
+			while('0x' in entry):
+				entry = entry[:entry.find('0x')] + entry[entry.find('0x')+2:]
+
+			port.write(bytes.fromhex(entry))
+
+		else:
+			entry = "".join(entry)
+			entry = entry.encode()
+			port.write(entry)
+
 
 
 class SerialMainBox(Gtk.Box):
-	
+
 	def __init__(self):
 		Gtk.Box.__init__(self, spacing = 10)
-		
+
 		#initialize
 		serial_label = Gtk.Label()
 		serial_label.set_margin_left(6)
@@ -171,34 +194,34 @@ class SerialMainBox(Gtk.Box):
 		self.opendevice = Gtk.Button(label = "Connect")
 		self.edit = Gtk.Entry()
 		self.serialinfo_label = Gtk.Label()
-		
+
 		self.serialinfo = ['115200', '8', 'None', '1']
 		self.serialinfo_label.set_text(self.serialinfo[0] + ', '
-						+ self.serialinfo[1] 
+						+ self.serialinfo[1]
 						+ '-' + self.serialinfo[2][0] + '-'
 						+ self.serialinfo[3])
 
 		#serial initialize
 		self.availports = serial.tools.list_ports.comports()
 		self.useport = serial.Serial()
-	
+
 		#connect
 		self.serialPortCombo.connect('changed', self.dev_port_changed)
 		self.scan.connect('clicked', self.pop_down)
-		
+
 		#combo box
 		self.edit.set_text('/dev/tty')
 		self.devEntry = self.edit.get_text()
 		self.serialPortCombo.add(self.edit)
 		self.serialPortCombo.append('0', self.devEntry)
 
-		
-		
+
+
 		#add widgets in order
 		self.add(serial_label)
 		self.add(self.serialPortCombo)
 		self.add(self.scan)
-		self.add(self.opendevice)		
+		self.add(self.opendevice)
 		self.add(info_label)
 		self.add(self.serialinfo_label)
 
@@ -209,10 +232,10 @@ class SerialMainBox(Gtk.Box):
 
 		for i, port in enumerate(self.availports):
 			self.serialPortCombo.insert_text(i, port.device)
-			
 
-	
-			
+
+
+
 
 	def dev_port_changed(self, widget):
 		if  self.serialPortCombo.get_active_text() is not None:
@@ -223,7 +246,7 @@ class SerialMainBox(Gtk.Box):
 class ScrolledTerm(Gtk.Box):
 	def __init__(self):
 		Gtk.Box.__init__(self, orientation = 'vertical')
-		
+
 		self.scrolled_window = Gtk.ScrolledWindow()
 		self.scrolled_window.set_max_content_height(300)
 
@@ -245,18 +268,18 @@ class ScrolledTerm(Gtk.Box):
 
 
 
-	
-		
+
+
 		self.transmitctrl_label = Gtk.Label()
 		self.transmitctrl_label.set_markup("<b>" 'CONTROLLER TRANSMIT:'  "</b>")
 		self.transmitctrl_label.set_margin_left(50)
-		
+
 		self.transmitctrl_switch = Gtk.Switch()
 		self.transmitctrl_switch.set_margin_left(10)
 		self.transmitctrl_switch.set_margin_right(5)
 
-		
-		
+
+
 		self.scrolled_window.set_propagate_natural_height(True)
 		self.scrolled_window.set_margin_left(10)
 		self.scrolled_window.set_margin_right(10)
@@ -290,14 +313,14 @@ class ByteValBox(Gtk.Box):
 		self.valrow = []
 		self.mainwin_vals = []
 		self.entryarray = None
-		
+
 
 
 	def map(self):
 		for val in self.valbox:
-	
+
 			val.destroy()
-		
+
 		for val in self.valrow:
 			val.destroy()
 
@@ -305,40 +328,40 @@ class ByteValBox(Gtk.Box):
 		self.mainwin_vals = []
 		self.valbox = []
 		self.valrow = []
-		
+
 		for i, val in enumerate(self.entryarray):
 			self.mainwin_vals.append([])
 			self.mainwin_vals[i].append(Gtk.Label(val.bytenum_label.get_text()))
 			self.mainwin_vals[i][0].set_markup("<b>" + val.bytenum_label.get_text() + "</b>")
-			
+
 			self.mainwin_vals[i].append(Gtk.Label(''))
 
-			
+
 		for i in range(int(len(self.mainwin_vals)/6) + 1):
 			self.valrow.append(Gtk.Box(orientation = 'horizontal'))
 
 
-			
+
 		for i, val in enumerate(self.mainwin_vals):
-			
+
 			self.valbox.append(Gtk.Box(orientation = 'horizontal'))
 			self.valbox[i].add(val[0])
 			self.valbox[i].add(val[1])
 			self.valbox[i].set_size_request(120,0)
 			self.valrow[int(i/6)].add(self.valbox[i])
-			
+
 
 		for row in self.valrow:
 			self.add(row)
-			
+
 		self.show_all()
 
 
 class AppMenuBar(Gtk.MenuBar):
-	
+
 	def __init__(self):
 		Gtk.MenuBar.__init__(self)
-		
+
 		#initialize
 		filemenu = Gtk.Menu()
 		viewmenu = Gtk.Menu()
@@ -356,56 +379,52 @@ class AppMenuBar(Gtk.MenuBar):
 		clearitem = Gtk.MenuItem("Reset Values")
 
 		optionsitem = Gtk.MenuItem("Options")
-		
+
 		exititem.connect("activate", Gtk.main_quit)
 
 		controlleritem.connect("activate", self.open_cont)
 		serialitem.connect("activate", self.open_serial)
 		clearitem.connect("activate", self.clear_val)
-		
-		
-		
+
+
+
 		fileitem.set_submenu(filemenu)
 		filemenu.add(exititem)
-		
-		
-		
+
+
+
 
 		viewmenu.add(controlleritem)
 		viewmenu.add(serialitem)
 		viewitem.set_submenu(viewmenu)
-		
+
 		optionsitem.set_submenu(optionsmenu)
 		optionsmenu.add(clearitem)
 
-		
+
 		self.add(fileitem)
 		self.add(viewitem)
 		self.add(optionsitem)
-		
+
 	def clear_val(self, widget):
 		controllerbox = self.controllerwin.controllerbox
 		for value in controllerbox.bytebox.entryarray:
 			if hasattr(value, 'axis_total'):
 				value.axis_total = 0
-			
+
 			if hasattr(value, 'button_total'):
 				value.button_total = 0
-				
+
 			if hasattr(value, 'hat_total'):
 				value.hat_total = 0
-	
-	
-	
+
+
+
 
 	def open_cont(self, widget):
-	
+
 		self.controllerwin.show_all()
 
 	def open_serial(self, widget):
-		
+
 		self.serialwin.show_all()
-
-
-
-	

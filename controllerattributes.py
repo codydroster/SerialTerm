@@ -7,7 +7,7 @@ from gi.repository import Gtk, Gdk, GLib, GObject
 
 
 class ButtonAttributes():
-	
+
 	def __init__(self, name):
 		self.name = name
 
@@ -17,9 +17,10 @@ class ButtonAttributes():
 
 		self.value = 1
 		self.buttoncnt = 0
-	
-	
-	
+		
+
+
+
 	#GTK
 		self.box = Gtk.Box(orientation = 'vertical')
 		self.boxlab = Gtk.Box(orientation = 'horizontal')
@@ -41,17 +42,17 @@ class ButtonAttributes():
 		self.level.set_max_value(2)
 		self.level.set_value(1)
 
-	
+
 		self.boxlab.add(self.label)
 		self.boxlab.add(self.labelval)
-		self.box.add(self.boxlab)	
+		self.box.add(self.boxlab)
 		self.box.add(self.level)
 
 
 	def get_value(self):
 
 		self.value = self.max * (self.rawvalue)
- 		
+
 		return self.value
 
 	def set_levelbar(self, val):
@@ -66,7 +67,7 @@ class ButtonAttributes():
 
 
 class AxisAttributes():
-	
+
 	def __init__(self, name):
 		self.name = name
 		self.min = 0
@@ -99,10 +100,10 @@ class AxisAttributes():
 		self.level.set_value(5)
 
 
-	
+
 		self.boxlab.add(self.label)
 		self.boxlab.add(self.labelval)
-		self.box.add(self.boxlab)	
+		self.box.add(self.boxlab)
 		self.box.add(self.level)
 
 
@@ -121,12 +122,12 @@ class AxisAttributes():
 
 
 class HatAttributes():
-	
+
 	def __init__(self, name):
 		self.name = name
 		self.min = 0
 		self.max = 10
-	
+
 		self.rawvalue = 0
 
 
@@ -150,12 +151,12 @@ class HatAttributes():
 		self.box.set_margin_bottom(10)
 		self.level.set_min_value(0)
 		self.level.set_max_value(10)
-		
+
 		self.level.set_value(5)
-	
+
 		self.boxlab.add(self.label)
 		self.boxlab.add(self.labelval)
-		self.box.add(self.boxlab)	
+		self.box.add(self.boxlab)
 		self.box.add(self.level)
 
 	def get_value(self):
@@ -163,13 +164,9 @@ class HatAttributes():
 		return self.value
 
 	def set_levelbar(self, val):
-		
+
 		self.level.set_max_value(abs(self.max))
 		middle = self.max/2
 		self.level.set_value(middle + val/2)
-		
+
 		self.labelval.set_text(str(self.value)[:6])
-
-
-
-
