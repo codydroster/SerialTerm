@@ -155,7 +155,7 @@ def background():
 def update_gui():
 	mainwin_vals = mainwin.bytevalbox.mainwin_vals
 	joystickid = mainwin.appmenu.controllerwin.controllerbox.contcombo.get_active()
-	
+	hex_switch = mainwin.scrolled_term.hex_display_switch.get_active()
 	if joystickid != -1:
 		
 		
@@ -185,7 +185,10 @@ def update_gui():
 		if len(mainwin_vals) == len(values):
 			for i, val in enumerate(mainwin_vals):
 
-				val[1].set_text(str(values[i]))
+				if(hex_switch):
+					val[1].set_text((hex(values[i])))
+				else:
+					val[1].set_text((str(values[i])))
 
 
 

@@ -198,15 +198,24 @@ class ControllerBox(Gtk.Box):
 	#set endpoint
 
 		if widget is endbut.entrymax:
-			self.butbox.buttonattr[self.contcombo.get_active()][endbut.inputcombo.get_active()].max = float(endbut.entrymax.get_text())
+			if('0x' in endbut.entrymax.get_text()):
+				#if hex
+				self.butbox.buttonattr[self.contcombo.get_active()][endbut.inputcombo.get_active()].max = int(endbut.entrymax.get_text(), 0)
+			else:
+				#if int of float
+				self.butbox.buttonattr[self.contcombo.get_active()][endbut.inputcombo.get_active()].max = float(endbut.entrymax.get_text())
 
 		elif widget is endaxis.entrymax:
-			self.butbox.axisattr[self.contcombo.get_active()][endaxis.inputcombo.get_active()].max = float(endaxis.entrymax.get_text())
-	
+			if('0x' in endaxis.entrymax.get_text()):
+				self.butbox.axisattr[self.contcombo.get_active()][endaxis.inputcombo.get_active()].max = int(endaxis.entrymax.get_text(), 0)
+			else:
+				self.butbox.axisattr[self.contcombo.get_active()][endaxis.inputcombo.get_active()].max = float(endaxis.entrymax.get_text())
+				
 		elif widget is endhat.entrymax:
-			self.butbox.hatattr[self.contcombo.get_active()][endhat.inputcombo.get_active()].max = float(endhat.entrymax.get_text())
-
-		
+			if('0x' in endhat.entrymax.get_text()):
+				self.butbox.hatattr[self.contcombo.get_active()][endhat.inputcombo.get_active()].max = int(endhat.entrymax.get_text(), 0)
+			else:
+				self.butbox.hatattr[self.contcombo.get_active()][endhat.inputcombo.get_active()].max = float(endhat.entrymax.get_text())		
 
 	def input_changed(self, widget):
 		endbut = self.endpoint_button_box

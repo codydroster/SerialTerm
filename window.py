@@ -171,7 +171,7 @@ class MainWindow(Gtk.Window):
 			try:
 				port.write(bytes.fromhex(entry))
 				if(self.scrolled_term.hex_display_switch.get_active()):
-					self.scrolled_term.insert_text_term('TX: ' + entry.upper())
+					self.scrolled_term.insert_text_term('TX: 0x' + entry)
 				else:
 					entry = "".join(entry)
 					self.scrolled_term.insert_text_term('TX: ' + bytes.fromhex(entry).decode())
@@ -183,7 +183,7 @@ class MainWindow(Gtk.Window):
 			entry = entry.encode()
 			port.write(entry)
 			if(self.scrolled_term.hex_display_switch.get_active()):
-				self.scrolled_term.insert_text_term('TX: ' + entry.hex().upper())
+				self.scrolled_term.insert_text_term('TX: 0x' + entry.hex())
 			else:
 				self.scrolled_term.insert_text_term('TX: ' + entry.decode())
 
@@ -365,6 +365,8 @@ class ByteValBox(Gtk.Box):
 		for i, val in enumerate(self.mainwin_vals):
 
 			self.valbox.append(Gtk.Box(orientation = 'horizontal'))
+			
+			#valbox[i] is a GTK Box
 			self.valbox[i].add(val[0])
 			self.valbox[i].add(val[1])
 			self.valbox[i].set_size_request(120,0)
