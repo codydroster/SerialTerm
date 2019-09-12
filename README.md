@@ -1,6 +1,7 @@
 ## UARTGamepad
 
-UARTGamepad takes input from a USB or Bluetooth game controller, and outputs it to a serial port.
+Takes input from a USB or Bluetooth game controller, and outputs it to a serial port.
+
 #### Requirements:
 
 ```
