@@ -160,6 +160,7 @@ class MainWindow(Gtk.Window):
 		port = self.serialportbox.useport
 		entry = list(self.scrolled_term.send_entry.get_text())
 
+	##byte
 		if('0x' in "".join(entry)):
 			if (len(entry[2:]) == 1):
 				entry.insert(2, '0')
@@ -167,15 +168,24 @@ class MainWindow(Gtk.Window):
 			entry = "".join(entry)
 			while('0x' in entry):
 				entry = entry[:entry.find('0x')] + entry[entry.find('0x')+2:]
-
-			port.write(bytes.fromhex(entry))
-
+			try:
+				port.write(bytes.fromhex(entry))
+				if(self.scrolled_term.hex_display_switch.get_active()):
+					self.scrolled_term.insert_text_term('TX: ' + entry.upper())
+				else:
+					entry = "".join(entry)
+					self.scrolled_term.insert_text_term('TX: ' + bytes.fromhex(entry).decode())
+			except:
+				self.scrolled_term.insert_text_term('error')
+	##string
 		else:
 			entry = "".join(entry)
 			entry = entry.encode()
 			port.write(entry)
-
-
+			if(self.scrolled_term.hex_display_switch.get_active()):
+				self.scrolled_term.insert_text_term('TX: ' + entry.hex().upper())
+			else:
+				self.scrolled_term.insert_text_term('TX: ' + entry.decode())
 
 class SerialMainBox(Gtk.Box):
 
@@ -263,6 +273,7 @@ class ScrolledTerm(Gtk.Box):
 		self.send_button = Gtk.Button(label = 'SEND')
 
 		self.send_entry.set_width_chars(48)
+		self.send_entry.set_placeholder_text('eg. 0x42 0x4242 hello')
 		self.send_entry.set_margin_left(10)
 		self.send_entry.set_margin_right(10)
 
@@ -272,9 +283,16 @@ class ScrolledTerm(Gtk.Box):
 
 		self.transmitctrl_label = Gtk.Label()
 		self.transmitctrl_label.set_markup("<b>" 'CONTROLLER TRANSMIT:'  "</b>")
-		self.transmitctrl_label.set_margin_left(50)
+		self.transmitctrl_label.set_margin_left(20)
+
+		self.hex_display_label = Gtk.Label()
+		self.hex_display_label.set_markup("<b>" 'HEX:'  "</b>")
+		self.hex_display_label.set_margin_left(10)
+		self.hex_display_label.set_margin_right(5)
 
 		self.transmitctrl_switch = Gtk.Switch()
+		self.hex_display_switch = Gtk.Switch()
+
 		self.transmitctrl_switch.set_margin_left(10)
 		self.transmitctrl_switch.set_margin_right(5)
 
@@ -290,6 +308,8 @@ class ScrolledTerm(Gtk.Box):
 		self.add(self.scrolled_window)
 		self.entry_box.add(self.send_entry)
 		self.entry_box.add(self.send_button)
+		self.entry_box.add(self.hex_display_label)
+		self.entry_box.add(self.hex_display_switch)
 		self.entry_box.add(self.transmitctrl_label)
 		self.entry_box.add(self.transmitctrl_switch)
 		self.add(self.entry_box)
